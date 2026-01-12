@@ -1,0 +1,34 @@
+{
+  "3500": ["taiwan"],
+  "2341": ["taipei", "tamsui"],
+  "2337": ["miaoli", "sanyi", "nanzhuang", "taian", "dahu-gongguan-toufen"],
+  "2340": [
+    "taichung",
+    "fengchia",
+    "lihpao-resort",
+    "guguan",
+    "taichung-station",
+    "taichung-other"
+  ],
+  "2342": [
+    "nantou",
+    "sunmoonlake",
+    "cingjing",
+    "xitou",
+    "puli",
+    "nantou-other"
+  ],
+  "2343": ["changhua"],
+  "2345": ["tainan", "aniping", "urban", "tainan-other"],
+  "2344": ["kaohsiung"],
+  "2346": [
+    "yilan",
+    "jiaoxi",
+    "suao",
+    "luodong",
+    "yilan-other",
+    "toucheng",
+    "wujie",
+    "dongshan"
+  ]
+}

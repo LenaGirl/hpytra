@@ -1,0 +1,90 @@
+/*=============== Hotel 介紹 ===============*/
+.hotel-content {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.3rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-secondary);
+  border-radius: 8px;
+  background: white;
+}
+
+.hotel-photo-main {
+  width: 60%;
+}
+.hotel-photo-main img {
+  width: 100%;
+  aspect-ratio: 10/7;
+  border-radius: 8px;
+  object-fit: fill;
+}
+
+.hotel-info {
+  width: 40%;
+  font-size: 1.1rem;
+}
+
+.hotel-info h1 {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.2em;
+}
+
+.hotel-info-list {
+  padding-left: 1.2rem;
+  margin: 0.5rem 0;
+}
+
+.hotel-info-list li {
+  margin: 0.3rem 0 0.3rem 0.8rem;
+}
+
+/*=============== 訂房連結 Box ===============*/
+.hotel-affiliate-links-box {
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 2px 6px 12px var(--color-shadow);
+  text-align: center;
+}
+
+.hotel-affiliate-links-box img {
+  margin: 0.3rem;
+  box-shadow: 3px 3px 6px var(--color-shadow-highlight);
+}
+
+.hotel-affiliate-links-box img:hover {
+  box-shadow: 3px 3px 10px var(--color-shadow-highlight);
+}
+
+/*=============== 訂房連結 Float ===============*/
+.hotel-affiliate-links-float {
+  position: fixed;
+  /*top: 63%;
+  left: 95%;*/
+  top: 70vh;
+  left: 98vw;
+  transform: translate(-100%, -50%);
+  z-index: 9999;
+  line-height: 25px;
+}
+
+.hotel-affiliate-links-float img {
+  filter: drop-shadow(3px 3px 6px var(--color-shadow-highlight));
+}
+
+.hotel-affiliate-links-float img:hover {
+  filter: drop-shadow(3px 3px 10px var(--color-shadow-highlight));
+}
+
+/*========== RWD 手機、平板 ==========*/
+@media all and (max-width: 1023px) {
+  .hotel-content {
+    flex-direction: column-reverse;
+  }
+  .hotel-photo-main,
+  .hotel-info {
+    width: 100%;
+  }
+}

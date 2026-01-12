@@ -1,0 +1,62 @@
+[
+  {
+    "adid": "1095632",
+    "cid": "6488",
+    "adid2": "1095619",
+    "cid2": "19",
+    "slugs": ["taipei", "tamsui"]
+  },
+  {
+    "adid": "1095615",
+    "cid": "8109",
+    "slugs": ["miaoli", "sanyi", "nanzhuang", "taian", "dahu-gongguan-toufen"]
+  },
+  {
+    "adid": "1095613",
+    "cid": "25",
+    "slugs": [
+      "taichung",
+      "fengchia",
+      "lihpao-resort",
+      "guguan",
+      "taichung-station",
+      "taichung-other"
+    ]
+  },
+  {
+    "adid": "1095612",
+    "cid": "25303",
+    "slugs": [
+      "nantou",
+      "sunmoonlake",
+      "cingjing",
+      "xitou",
+      "puli",
+      "nantou-other"
+    ]
+  },
+  {
+    "adid": "1095620",
+    "cid": "164",
+    "slugs": ["tainan", "aniping", "urban", "tainan-other"]
+  },
+  {
+    "adid": "1095621",
+    "cid": "22",
+    "slugs": ["kaohsiung"]
+  },
+  {
+    "adid": "1095622",
+    "cid": "42",
+    "slugs": [
+      "yilan",
+      "jiaoxi",
+      "suao",
+      "luodong",
+      "yilan-other",
+      "toucheng",
+      "wujie",
+      "dongshan"
+    ]
+  }
+]

@@ -1,0 +1,26 @@
+/*=============== 照片 Grid ===============*/
+.hotel-photos-grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  margin-bottom: 3rem;
+}
+
+.hotel-photos-item {
+  width: 100%;
+  height: 100%;
+}
+
+.hotel-photos-item img {
+  width: 100%;
+  aspect-ratio: 10/7;
+  border-radius: 8px;
+  object-fit: fill;
+}
+
+/* 小尺寸裝置無 lightbox */
+@media (min-width: 428px) {
+  .hotel-photos-item img {
+    cursor: pointer;
+  }
+}

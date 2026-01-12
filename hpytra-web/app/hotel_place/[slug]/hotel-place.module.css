@@ -1,0 +1,99 @@
+/*========== 介紹 ==========*/
+.place-introduction h1 {
+  font-size: 1.75rem;
+}
+
+.place-introduction-section {
+  margin: 1rem 0;
+}
+.place-introduction-section h2 a {
+  color: blue;
+}
+.place-introduction-section p {
+  padding-left: 1rem;
+}
+
+.place-introduction-entry h3 {
+  color: var(--color-text);
+  padding-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+.place-introduction-entry p {
+  padding-left: 2rem;
+}
+
+/*========== 住宿推薦精選 ==========*/
+.place-featured-content h3 {
+  margin-top: 2rem;
+  padding-left: 1.25rem;
+}
+
+.place-featured-content h4 {
+  margin-bottom: 0.5rem;
+  padding-left: 2.5rem;
+}
+
+.place-featured-content p {
+  padding-left: 3.4rem;
+}
+
+/*========== 【統整】住宿特色 Table ==========*/
+.place-summary-table {
+  width: 100%;
+  border-spacing: 0;
+  border: 1px solid var(--color-primary);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.place-summary-table th {
+  padding: 0.4rem;
+  background-color: var(--color-background-highlight);
+}
+
+.place-summary-table th:first-child {
+  width: 20%;
+  border-right: 1px solid var(--color-primary);
+}
+
+.place-summary-table th:last-child {
+  width: 80%;
+}
+
+.place-summary-table td {
+  padding: 0.4rem;
+  text-align: center;
+  background-color: white;
+  border-top: 1px solid var(--color-primary);
+  border-right: 1px solid var(--color-primary);
+}
+
+.place-summary-table td:last-child {
+  border-right: none;
+}
+
+/*========== 附近景點住宿推薦 Place Item ==========*/
+.place-item {
+  padding-bottom: 1rem;
+  overflow: hidden;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 2px 6px 12px var(--color-shadow);
+}
+
+.place-item-photo {
+  aspect-ratio: 3/1;
+}
+
+.place-item-photo-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.place-item h3 {
+  margin: 0.1rem 0.6rem;
+  line-height: 1.6rem;
+  font-size: 1.3rem;
+}

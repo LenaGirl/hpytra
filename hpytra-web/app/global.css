@@ -1,0 +1,644 @@
+:root {
+  --color-primary: #0098ef;
+  --color-secondary: #00a9ff;
+  --color-footer: #cdf5fd;
+  --color-background: #f3fdff;
+  --color-background-highlight: #e7f9fd;
+  --color-text: #364151;
+  --color-text-highlight: #ff8225;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-shadow-highlight: rgba(0, 0, 0, 0.6);
+  --color-divider: #89cff3;
+  --color-divider-light: #cdf5fd;
+  --color-menu-item: #eeeeee;
+  --font-weight-custon-bold: 550;
+}
+
+html {
+  font-size: 16px;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif; /* macOS/iOS中文、Windows中文、Android中文、英文 */
+  color: var(--color-text);
+  background-color: var(--color-background);
+}
+main {
+  width: 90%;
+  margin: 2rem auto;
+}
+@media (max-width: 768px) {
+  main {
+    width: 85%;
+  }
+}
+h1,
+h2,
+h3,
+h4,
+h1 a,
+h2 a,
+h3 a,
+h4 a {
+  color: var(--color-primary);
+}
+a {
+  text-decoration: none;
+  color: blue;
+}
+a:hover {
+  opacity: 0.7;
+}
+
+p,
+time {
+  line-height: 1.6rem;
+  margin: 0.3rem 0;
+}
+
+section {
+  margin-bottom: 3rem;
+}
+
+.hidden {
+  display: none;
+}
+
+/*=============== 文字 Styles ===============*/
+.text-strong {
+  font-weight: var(--font-weight-custon-bold);
+}
+.text-large {
+  font-size: 1.1rem;
+}
+.text-small {
+  font-size: 0.9rem;
+}
+.text-center {
+  text-align: center;
+}
+.text-highlight {
+  color: var(--color-text-highlight);
+}
+
+/*=============== Header ===============*/
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-primary);
+  background-color: white;
+  z-index: 999;
+}
+
+header img {
+  padding: 0.5rem 1.2rem;
+}
+
+.header__menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2rem;
+}
+
+.header__menu a {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-custon-bold);
+}
+
+.header__menu .btn-primary {
+  color: white;
+}
+
+.header__menu-item {
+  position: relative;
+}
+.header__submenu {
+  display: none;
+  list-style: none;
+  background: white;
+  z-index: 100;
+}
+
+.header__submenu-item {
+  position: relative;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  border-top: 1px solid var(--color-menu-item);
+}
+
+.header__item-row {
+  display: flex;
+  align-items: center;
+}
+
+.header__submenu-toggle {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.header__submenu-toggle svg {
+  color: var(--color-primary);
+  width: 0.8rem;
+  height: 0.8rem;
+  padding: 0rem 0.2rem 0rem 0.05rem;
+}
+
+/*--------- RWD 桌機 ----------*/
+@media (min-width: 1024px) {
+  header {
+    position: sticky;
+    top: 0;
+  }
+
+  .header__hamburger {
+    display: none;
+  }
+
+  .header__right {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    padding: 0.5rem 1.2rem;
+  }
+
+  .header__submenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 130px;
+    padding: 0;
+    box-shadow: 2px 6px 12px var(--color-shadow);
+    border-radius: 0 6px 6px 6px;
+  }
+  .header__submenu-item {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+
+  .header__submenu-item > .header__submenu {
+    left: 100%;
+    top: 0;
+  }
+  .header__submenu.level-3.is-overflow-bottom {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+  }
+
+  .header__submenu-item:first-child {
+    border-top: 1px solid var(--color-primary);
+  }
+
+  .header__menu-item:hover > .header__submenu,
+  .header__submenu-item:hover > .header__submenu {
+    display: block;
+  }
+
+  .header__submenu-item .header__submenu-toggle svg {
+    transform: rotate(270deg);
+  }
+}
+
+/*---------- RWD 手機 平板 ----------*/
+@media (max-width: 1023px) {
+  header {
+    flex-wrap: wrap;
+  }
+
+  .header__hamburger {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1.2rem;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .header__hamburger svg {
+    color: var(--color-primary);
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .header__right {
+    display: none;
+    width: 100%;
+    background: white;
+    border-top: 1px solid var(--color-primary);
+  }
+
+  .header__menu {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .header__menu-item {
+    flex-direction: column;
+    padding: 0.6rem 1.2rem;
+    border-top: 1px solid var(--color-menu-item);
+  }
+
+  .header__submenu-item {
+    flex-direction: column;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .header__menu-item > .header__submenu {
+    margin-top: 0.6rem;
+  }
+
+  .header__submenu-item > .header__submenu {
+    margin-top: 0.4rem;
+  }
+
+  .header__right.is-open,
+  .header__submenu.is-open {
+    display: block;
+  }
+
+  .header__submenu-toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+}
+
+/*=============== Footer ===============*/
+footer {
+  background-color: var(--color-footer);
+  padding: 0.5rem;
+  margin-top: 5rem;
+}
+.footer__content {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer__about {
+  width: 45%;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.footer__disclaimer {
+  width: 55%;
+}
+.footer__disclaimer a {
+  color: var(--color-text);
+}
+
+.footer__copyright {
+  border-top: 1px solid white;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+/* RWD 手機 */
+@media (max-width: 767px) {
+  .footer__content {
+    display: block;
+  }
+  .footer__about {
+    width: 100%;
+  }
+  .footer__disclaimer {
+    width: 100%;
+  }
+}
+
+/*=============== 按鈕 ===============*/
+.btn {
+  font-weight: var(--font-weight-custon-bold);
+  font-size: 1rem;
+  margin: 0.3rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--color-secondary);
+  border-radius: 15px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.btn:hover {
+  box-shadow: 2px 6px 12px var(--color-shadow-highlight);
+}
+
+.btn-primary,
+.btn-secondary.active,
+.btn-tertiary.active,
+.btn-pagination.active {
+  color: white;
+  background-color: var(--color-secondary);
+}
+
+.btn-secondary {
+  color: var(--color-primary);
+  background-color: white;
+}
+
+.btn-secondary a {
+  color: var(--color-primary);
+}
+
+.btn-tertiary {
+  color: var(--color-text);
+  background-color: white;
+}
+
+.btn-pagination {
+  font-weight: normal;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  color: var(--color-text);
+  background: white;
+}
+
+/*=============== 分隔線 ===============*/
+.section-divider-style1 {
+  height: 1px;
+  margin-bottom: 1.5rem;
+  border: 0;
+  background-image: linear-gradient(
+    to right,
+    var(--color-divider),
+    var(--color-divider),
+    white
+  );
+}
+
+.section-divider-style2 {
+  height: 1px;
+  margin-bottom: 1.5rem;
+  border: 0;
+  background-image: linear-gradient(
+    to right,
+    var(--color-divider-light),
+    var(--color-divider),
+    var(--color-divider-light)
+  );
+}
+
+.section-divider-style3 {
+  height: 2px;
+  margin-bottom: 1.5rem;
+  border: 0;
+  background-color: var(--color-secondary);
+  width: 8%;
+}
+
+/*=============== Grid 排版 ===============*/
+.grid-primary {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.grid-secondary {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+}
+
+@media (max-width: 768px) {
+  .grid-primary {
+    grid-template-columns: 1fr;
+  }
+  .grid-secondary {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============== 返回頂端  ============== */
+.back-to-top {
+  position: fixed;
+  display: flex;
+  bottom: 25px;
+  right: 25px;
+  background-color: #a0e9ff;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 2px;
+  border: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  visibility: hidden;
+  z-index: 9999;
+}
+
+.back-to-top.show {
+  visibility: visible;
+}
+
+.back-to-top:hover {
+  background-color: var(--color-secondary);
+}
+
+/*=============== 首頁 ===============*/
+.homepage__hero {
+  position: relative;
+  min-height: 360px;
+  text-align: center;
+  padding: 4rem 1rem 2.5rem 1rem;
+}
+
+.homepage__hero img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.homepage__hero-content {
+  position: relative;
+  z-index: 2;
+}
+.homepage__hero-content h1 {
+  font-size: 3.3rem;
+  margin-bottom: 4rem;
+  color: white;
+}
+.homepage__hero-content p {
+  font-size: 1.3rem;
+  margin: 1rem 0;
+  color: white;
+}
+
+/*----- 依地區找住宿 -----*/
+.homepage__region-group h3 {
+  margin-bottom: 0.5rem;
+}
+.homepage__places-row {
+  line-height: 3rem;
+}
+
+/* ============== Tabs ============== */
+.tabs-header {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tabs-content {
+  padding: 1rem;
+  background-color: white;
+  border: 1px solid var(--color-secondary);
+  border-radius: 15px;
+}
+
+.tabs-content-item {
+  aspect-ratio: 3/1;
+}
+
+.tabs-content-item img {
+  border-radius: 10px;
+}
+
+.tabs-content-item-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/*=============== 內頁 Banner、排版 ===============*/
+.page__hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  text-align: center;
+}
+
+.page__hero-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1;
+}
+
+.page__hero-content {
+  position: relative;
+  top: 30%;
+  z-index: 2;
+}
+.page__hero-content h1 {
+  font-size: clamp(2.2rem, 3vw + 1rem, 3rem);
+  margin-top: 0;
+  color: white;
+}
+
+.page__static-page {
+  width: 80%;
+}
+.page__static-page li {
+  line-height: 1.6rem;
+}
+
+/*=============== 目錄 ===============*/
+.toc {
+  position: relative;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: fit-content;
+  padding-top: 1rem;
+  padding-left: 1rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 8px;
+  text-align: left;
+  background: white;
+}
+
+.toc-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-custon-bold);
+  color: var(--color-text);
+}
+
+.toc-list {
+  padding: 0.5rem 1.3rem;
+  margin: 0;
+  line-height: 1.6rem;
+}
+
+.toc-sublist {
+  list-style-type: square;
+  padding: 0rem 1.3rem;
+}
+
+/*----- 側邊目錄 -----*/
+.toc-sidebar {
+  position: fixed;
+  top: 20%;
+  left: 0;
+  z-index: 9999;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-primary);
+  border-radius: 0 6px 6px 0;
+  background: white;
+  box-shadow: 2px 6px 12px var(--color-shadow);
+  writing-mode: vertical-lr;
+}
+
+.toc-sidebar:hover .toc-sidebar-content {
+  display: block;
+}
+
+.toc-sidebar-title {
+  margin: 0;
+  padding: 0.4rem 0;
+  font-size: 1rem;
+  font-weight: var(--font-weight-custon-bold);
+  letter-spacing: 1px;
+  color: var(--color-text);
+  cursor: default;
+}
+
+.toc-sidebar-content {
+  position: fixed;
+  top: 20%;
+  left: 20px;
+  z-index: 10000;
+  display: none;
+  padding: 0 0.5rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 0 6px 6px 6px;
+  background: white;
+  box-shadow: 2px 6px 12px var(--color-shadow);
+  writing-mode: horizontal-tb;
+}
+
+/*----- 防止目錄點選後 區塊被固定主選單遮住 -----*/
+section,
+#map-search,
+#hotel-filter {
+  scroll-margin-top: 80px;
+}
+
+/*========== 頁碼 ==========*/
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+/*=============== 地圖找房 ===============*/
+/* 隱藏 google 預設 close 按鈕 */
+.gm-ui-hover-effect {
+  display: none !important;
+}

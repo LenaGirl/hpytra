@@ -1,0 +1,74 @@
+/*=============== 地圖篩選 ===============*/
+.map-filter-place,
+.map-filter-subplace {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0.6rem;
+  gap: 0.3rem;
+}
+
+/*=============== 地圖 ===============*/
+.map-view {
+  position: relative;
+  width: 100%;
+  height: 450px;
+  margin-top: 2rem;
+}
+
+/* 自訂 close 按鈕 */
+.google-infowindow-close {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  font-size: 1rem;
+  background: transparent;
+  border: 0;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.google-hotel-content {
+  display: flex;
+  max-width: 520px;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.google-hotel-photo-main {
+  width: 40%;
+}
+
+.google-hotel-photo-main img {
+  width: 100%;
+  aspect-ratio: 10/7;
+}
+
+.google-hotel-info {
+  width: 60%;
+}
+.google-hotel-info h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.google-hotel-info-list {
+  padding-left: 1.2rem;
+  margin: 0.5rem 0;
+}
+
+/*=============== RWD 手機 ===============*/
+@media (max-width: 767px) {
+  .google-hotel-content {
+    display: block;
+    max-width: 300px;
+  }
+
+  .google-hotel-photo-main {
+    width: 70%;
+    margin: 0 auto;
+  }
+  .google-hotel-info {
+    width: 100%;
+  }
+}
