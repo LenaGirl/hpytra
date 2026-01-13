@@ -25,7 +25,7 @@ export default async function sitemap(props: {
   const currentIdHotels = hotels.slice(start, end);
 
   return currentIdHotels.map((hotel) => ({
-    url: `https://hyptra.com/hotels/${hotel.slug}`,
+    url: `https://www.hyptra.com/hotels/${hotel.slug}`,
     lastModified: hotel.updated_at ? new Date(hotel.updated_at) : undefined,
   }));
 }

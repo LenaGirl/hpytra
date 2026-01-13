@@ -5,7 +5,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const hotelsCount = await getHotelsCount();
   const placesMaxUpdatedAt = await getPlacesMaxUpdatedAt();
 
-  const SITE_URL = "https://hyptra.com";
+  const SITE_URL = "https://www.hyptra.com";
   const staticRoutes = [
     {
       url: SITE_URL,

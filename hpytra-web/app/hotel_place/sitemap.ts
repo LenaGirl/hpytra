@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const lastModified = calcPageUpdatedAt(placeDetails, hotelsForPlace);
 
       return {
-        url: `https://hyptra.com/hotel_place/${place.slug}`,
+        url: `https://www.hyptra.com/hotel_place/${place.slug}`,
         lastModified: new Date(lastModified),
       };
     })
