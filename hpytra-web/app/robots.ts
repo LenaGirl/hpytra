@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://hpytra.com/sitemap.xml",
+    sitemap: "https://www.hpytra.com/sitemap.xml",
   };
 }

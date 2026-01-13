@@ -56,7 +56,7 @@ export async function getPlaceDetailsBySlug(placeSlug: string) {
     .eq("slug", placeSlug)
     .maybeSingle();
 
-  if (error) {
+  if (error || !data) {
     console.error("getPlaceDetailsBySlug error:", error);
     notFound();
   }
@@ -117,7 +117,7 @@ export async function getLabelBySlug(labelSlug: string) {
     .eq("slug", labelSlug)
     .maybeSingle();
 
-  if (error) {
+  if (error || !data) {
     console.error("getLabelBySlug error:", error);
     notFound();
   }
@@ -167,7 +167,7 @@ export async function getHotelBySlug(hotelSlug: string) {
     .eq("slug", hotelSlug)
     .maybeSingle();
 
-  if (error) {
+  if (error || !data) {
     console.error("getHotelBySlug error:", error);
     notFound();
   }
