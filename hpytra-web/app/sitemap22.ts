@@ -1,11 +1,12 @@
 import { MetadataRoute } from "next";
 import { getHotelsCount, getPlacesMaxUpdatedAt } from "@/app/lib/getDbData";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap() {
   const hotelsCount = await getHotelsCount();
   const placesMaxUpdatedAt = await getPlacesMaxUpdatedAt();
 
   const SITE_URL = "https://www.hyptra.com";
+  /*
   const staticRoutes = [
     {
       url: SITE_URL,
@@ -20,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(placesMaxUpdatedAt),
     },
   ];
+*/
 
   const placeRoutesXml = [
     {
@@ -34,6 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   /* Hotels */
+  /*
   const PAGE_SIZE = 200;
   const sitemapCount = Math.ceil(hotelsCount / PAGE_SIZE);
 
@@ -41,12 +44,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return {
       url: `${SITE_URL}/hotels/${i}.xml`,
     };
-  });
+  });*/
 
-  return [
+  return [...placeRoutesXml, ...labelRoutesXml];
+  /*
+    return [
     ...staticRoutes,
     ...placeRoutesXml,
     ...labelRoutesXml,
     ...hotelRoutesXml,
-  ];
+  ];*/
 }
