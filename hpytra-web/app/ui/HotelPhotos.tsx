@@ -32,6 +32,7 @@ export default function HotelPhotos({ hotel }) {
             <div key={i} className={hotelPhotosStyles["hotel-photos-item"]}>
               <img
                 src={photoUrl}
+                alt={hotel.name}
                 onClick={() => {
                   if (window.innerWidth < 428) return; // 小尺寸裝置無 Lightbox
                   setCurrentPhotoIndex(i + 1); // Photo 2: i=0 , index=1

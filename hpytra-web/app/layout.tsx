@@ -73,7 +73,7 @@ export default async function RootLayout({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | 幸福旅行站",
+    template: "%s | 幸福旅行站 - 親子家庭度假去",
     default: "幸福旅行站 - 親子家庭度假去",
   },
   description:
@@ -85,12 +85,12 @@ export const metadata: Metadata = {
     "台灣住宿推薦",
     "台灣住宿網站",
   ],
-  metadataBase: new URL("https://hpytra.com"),
+  metadataBase: new URL("https://www.hpytra.com"),
   openGraph: {
     title: "幸福旅行站 - 親子家庭度假去",
     description:
       "幸福旅行站提供台灣熱門旅遊景點之優質住宿推薦，是親子家庭規劃度假的最佳首選網站。",
-    url: "https://hpytra.com",
+    url: "https://www.hpytra.com",
     siteName: "幸福旅行站",
     images: [
       {
