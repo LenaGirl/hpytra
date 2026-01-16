@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure--pp@qkc-iu363l(^wnxo9fo6f!f#3iwyl)%^dwz&t_m3!eq8#8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+import os
+
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
     "localhost,127.0.0.1"
@@ -93,7 +95,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 from dotenv import load_dotenv
-import os
 import dj_database_url
 
 load_dotenv()
