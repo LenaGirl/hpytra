@@ -1,0 +1,44 @@
+# python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+
+# virtual environment
+/venv
+/.venv
+
+# env files
+.env
+.env*.local
+
+# django
+*.log
+local_settings.py
+/staticfiles
+/media
+
+# django migrations cache
+*/migrations/__pycache__/
+
+# database
+*.sqlite3
+
+# testing
+/coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# misc
+.DS_Store
+Thumbs.db
+*.pem
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
