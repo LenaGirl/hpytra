@@ -42,14 +42,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "django.contrib.postgres",
     'rest_framework',
-    'debug_toolbar',
     'corsheaders',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -141,11 +139,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom user model
 AUTH_USER_MODEL = 'accounts.User'
 
-
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
-
+# CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
