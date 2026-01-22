@@ -5,8 +5,8 @@ import HotelList from "@/app/ui/HotelList";
 import labelFilterHotelListStyles from "./labelFilterHotelList.module.css";
 
 export default function LabelFilterHotelList({
-  hotelsForPlace,
-  labelsForPlace,
+  hotelsByPlace,
+  labelsByPlace,
   places,
   labels,
 }) {
@@ -17,7 +17,7 @@ export default function LabelFilterHotelList({
   const [selectedMode, setSelectedMode] = useState<"or" | "and">(submittedMode);
 
   /* 篩選 Hotels */
-  const filteredHotels = hotelsForPlace.filter((hotel) => {
+  const filteredHotels = hotelsByPlace.filter((hotel) => {
     if (submittedLabels.length === 0) return true;
     if (submittedMode === "or") {
       return submittedLabels.some((label) => hotel.labels.includes(label));
@@ -32,7 +32,7 @@ export default function LabelFilterHotelList({
       setSelectedLabels((previousLabels) => [...previousLabels, checkboxLabel]);
     } else {
       setSelectedLabels((previousLabels) =>
-        previousLabels.filter((selected) => selected !== checkboxLabel)
+        previousLabels.filter((selected) => selected !== checkboxLabel),
       );
     }
   };
@@ -61,7 +61,7 @@ export default function LabelFilterHotelList({
         <h3>進階篩選</h3>
 
         {/* Render Labels */}
-        {labelsForPlace.map((label) => (
+        {labelsByPlace.map((label) => (
           <label key={label.slug}>
             <input
               type="checkbox"

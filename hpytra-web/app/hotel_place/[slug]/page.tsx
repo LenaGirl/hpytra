@@ -4,21 +4,21 @@ import type { Metadata } from "next";
 import { Fragment } from "react";
 import hotelPlaceStyles from "./hotel-place.module.css";
 import { getGroupedLabels } from "@/app/lib/getGroupedLabels";
-import { getIncludedPlaceSlugs } from "@/app/lib/getIncludedPlaceSlugs";
-import { calcPageUpdatedAt } from "@/app/lib/calcPageUpdatedAt";
-import {
-  getPlaces,
-  getLabelsForHotelPlacePage,
-  getPlaceDetailsBySlug,
-  getHotelsByPlace,
-} from "@/app/lib/getDbData";
 import labelGroups from "@/data/label-groups.json";
-/*import DisplayKlook from "@/app/ui/DisplayKlook";*/
 import DisplayKkdayClient from "@/app/ui/DisplayKkdayClient";
+import type { ContentBlock } from "@/app/lib/api";
+import {
+  fetchPlacesLite,
+  fetchPlaceDetail,
+  fetchPlacePageLatestUpdatedAt,
+  fetchHotelsByPlaceTree,
+  fetchLabelsLite,
+  fetchLabelsByPlace,
+} from "@/app/lib/api";
 
 import dynamic from "next/dynamic";
 const LabelFilterHotelList = dynamic(
-  () => import("@/app/ui/LabelFilterHotelList")
+  () => import("@/app/ui/LabelFilterHotelList"),
 );
 
 export default async function HotelPlacePage({
@@ -28,20 +28,26 @@ export default async function HotelPlacePage({
 }) {
   const { slug } = await params;
 
-  const { currentPlaceDetails, hotelsForPlace, places, pageUpdatedAt } =
-    await loadHotelPlacePageAndMetadataData(slug);
+  const currentPlaceDetails = await fetchPlaceDetail(slug); // 404 則 notFound
+  const [hotelsByPlace, labelsByPlace, labels, places, pageLatestUpdatedAt] =
+    await Promise.all([
+      fetchHotelsByPlaceTree(slug),
+      fetchLabelsByPlace(slug),
+      fetchLabelsLite(),
+      fetchPlacesLite(),
+      fetchPlacePageLatestUpdatedAt(slug),
+    ]);
 
   const currentPlace = places.find((place) => place.slug === slug);
-
   const parentPlace =
     places.find((place) => place.slug === currentPlace.parent_slug) || null;
 
-  const labels = await getLabelsForHotelPlacePage();
-  const labelsForPlace = getLabelsForHotels({ hotelsForPlace, labels });
-
-  const updatedDate = new Date(pageUpdatedAt).toLocaleDateString("en-CA", {
-    timeZone: "Asia/Taipei",
-  });
+  const updatedDate = new Date(pageLatestUpdatedAt).toLocaleDateString(
+    "en-CA",
+    {
+      timeZone: "Asia/Taipei",
+    },
+  );
 
   return (
     <>
@@ -116,8 +122,8 @@ export default async function HotelPlacePage({
 
             {/*進階篩選 + Hotel List */}
             <LabelFilterHotelList
-              hotelsForPlace={hotelsForPlace}
-              labelsForPlace={labelsForPlace}
+              hotelsByPlace={hotelsByPlace}
+              labelsByPlace={labelsByPlace}
               places={places}
               labels={labels}
             />
@@ -129,8 +135,8 @@ export default async function HotelPlacePage({
             <div className={hotelPlaceStyles["place-featured-content"]}>
               <DisplayPlaceFeatured
                 currentPlace={currentPlace}
-                hotelsForPlace={hotelsForPlace}
-                labelsForPlace={labelsForPlace}
+                hotelsByPlace={hotelsByPlace}
+                labelsByPlace={labelsByPlace}
               />
             </div>
           </section>
@@ -140,8 +146,8 @@ export default async function HotelPlacePage({
             <hr className="section-divider-style1" />
             <DisplayPlaceSummaryTable
               currentPlace={currentPlace}
-              hotelsForPlace={hotelsForPlace}
-              labelsForPlace={labelsForPlace}
+              hotelsByPlace={hotelsByPlace}
+              labelsByPlace={labelsByPlace}
             />
           </section>
 
@@ -149,8 +155,6 @@ export default async function HotelPlacePage({
             <h2>★【優惠】住宿・景點門票・套票・交通</h2>
             <hr className="section-divider-style1" />
             <DisplayKkdayClient placeSlug={slug} pageSlug={slug} />
-            {/*<DisplayKkday placeSlug={slug} pageSlug={slug} />*/}
-            {/*<DisplayKlook placeSlug={slug} pageSlug={slug} />*/}
           </section>
 
           <section id="nearby-places">
@@ -182,7 +186,7 @@ export default async function HotelPlacePage({
               height: 640,
             },
 
-            dateModified: new Date(pageUpdatedAt).toISOString(),
+            dateModified: new Date(pageLatestUpdatedAt).toISOString(),
 
             articleSection: currentPlace.name,
             keywords: (currentPlaceDetails?.seo_keywords ?? []).join(", "),
@@ -294,54 +298,8 @@ export default async function HotelPlacePage({
   );
 }
 
-/*----- 載入頁面與 Metadata 所需的資料 -----*/
-async function loadHotelPlacePageAndMetadataData(placeSlug) {
-  const places = await getPlaces();
-
-  /*----- 取得 Place + 子 Places -----*/
-  const includedPlaceSlugs = getIncludedPlaceSlugs(places, placeSlug);
-  const [currentPlaceDetails, hotelsForPlace] = await Promise.all([
-    getPlaceDetailsBySlug(placeSlug),
-    getHotelsByPlace(includedPlaceSlugs),
-  ]);
-
-  const pageUpdatedAt = calcPageUpdatedAt(currentPlaceDetails, hotelsForPlace);
-
-  return {
-    currentPlaceDetails,
-    hotelsForPlace,
-    places,
-    pageUpdatedAt,
-  };
-}
-
-/*----- 文章內容 Data Type -----*/
-type ContentBlock =
-  | {
-      type: "intro";
-      text: string[];
-    }
-  | {
-      type: "section";
-      title?: string;
-      link?: string;
-      intro?: string;
-      entries: {
-        title: string;
-        text: string;
-      }[];
-    }
-  | {
-      type: "note";
-      text: string;
-    };
-
-type ContentProps = {
-  content: ContentBlock[];
-};
-
 /*----- Render 文章內容 -----*/
-function DisplayContent({ content }: ContentProps) {
+function DisplayContent({ content }: { content: ContentBlock[] }) {
   return (
     <>
       {content.map((block, idx) => {
@@ -431,33 +389,15 @@ function DisplayPlaceToc({ name }) {
   );
 }
 
-/*----- 取得所有 Hotels 有使用到的 Labels（去除重複） -----*/
-function getLabelsForHotels({ hotelsForPlace, labels }) {
-  const allLabels = hotelsForPlace.flatMap((hotel) => hotel.labels);
-
-  const uniqueLabels = [...new Set(allLabels)];
-
-  const sortedLabelObjects = uniqueLabels
-    .map((slug) => labels.find((label) => label.slug === slug))
-    .filter(Boolean)
-    .toSorted((a, b) => a.order_index - b.order_index);
-
-  return sortedLabelObjects;
-}
-
 /*----- Render 住宿推薦精選 -----*/
-function DisplayPlaceFeatured({
-  currentPlace,
-  hotelsForPlace,
-  labelsForPlace,
-}) {
-  const featuredLabels = labelsForPlace.filter(
-    (label) => label.featured === true
+function DisplayPlaceFeatured({ currentPlace, hotelsByPlace, labelsByPlace }) {
+  const featuredLabels = labelsByPlace.filter(
+    (label) => label.featured === true,
   );
   const groupedLabels = getGroupedLabels(featuredLabels);
 
   /* 平價住宿篩選 */
-  const lowPriceHotels = hotelsForPlace
+  const lowPriceHotels = hotelsByPlace
     .filter((hotel) => hotel.price_quad_room < 6000)
     .toSorted((a, b) => a.price_quad_room - b.price_quad_room)
     .slice(0, 10);
@@ -470,8 +410,8 @@ function DisplayPlaceFeatured({
           <Fragment key={category}>
             <h3 key={category}>{`◎ ${labelGroups[category]}：`}</h3>
             {categoryLabels.map((label) => {
-              const hotelsForPlaceIncludeLabel = hotelsForPlace.filter(
-                (hotel) => hotel.labels.includes(label.slug)
+              const hotelsByPlaceIncludeLabel = hotelsByPlace.filter((hotel) =>
+                hotel.labels.includes(label.slug),
               );
               return (
                 <Fragment key={label.slug}>
@@ -483,7 +423,7 @@ function DisplayPlaceFeatured({
                   <p>
                     推薦{label.name}
                     {label.featured_suffix}：
-                    <HotelLinkList hotels={hotelsForPlaceIncludeLabel} />
+                    <HotelLinkList hotels={hotelsByPlaceIncludeLabel} />
                   </p>
                 </Fragment>
               );
@@ -516,8 +456,8 @@ function HotelLinkList({ hotels }) {
 /*----- Render 住宿特色統整 -----*/
 function DisplayPlaceSummaryTable({
   currentPlace,
-  hotelsForPlace,
-  labelsForPlace,
+  hotelsByPlace,
+  labelsByPlace,
 }) {
   return (
     <table className={hotelPlaceStyles["place-summary-table"]}>
@@ -529,16 +469,16 @@ function DisplayPlaceSummaryTable({
         </tr>
       </thead>
       <tbody>
-        {labelsForPlace.map((label) => {
-          const hotelsForPlaceIncludeLabel = hotelsForPlace.filter((hotel) =>
-            hotel.labels.includes(label.slug)
+        {labelsByPlace.map((label) => {
+          const hotelsByPlaceIncludeLabel = hotelsByPlace.filter((hotel) =>
+            hotel.labels.includes(label.slug),
           );
 
           return (
             <tr key={label.slug}>
               <td>{label.name}</td>
               <td>
-                <HotelLinkList hotels={hotelsForPlaceIncludeLabel} />
+                <HotelLinkList hotels={hotelsByPlaceIncludeLabel} />
               </td>
             </tr>
           );
@@ -553,17 +493,17 @@ function DisplayNearbyPlaces({ places, currentPlace, parentPlace }) {
   let nearbyPlaces: typeof places = [];
 
   if (parentPlace) {
-    /* Place 為「子層 Place」： 顯示「同縣市其他 Places」 + 「縣市層級 Place」*/
+    /* Place 為「子層級 Place」： 顯示「同縣市其他 Places」 + 「縣市層級 Place」*/
     const siblingPlaces = places.filter(
       (place) =>
         place.parent_slug === currentPlace.parent_slug &&
-        place.slug !== currentPlace.slug
+        place.slug !== currentPlace.slug,
     );
     nearbyPlaces = [...siblingPlaces, parentPlace];
   } else {
-    /* Place 為「縣市層級 Place」： 顯示「子 Places」*/
+    /* Place 為「父(縣市)層級 Place」： 顯示「子 Places」*/
     nearbyPlaces = places.filter(
-      (place) => place.parent_slug === currentPlace.slug
+      (place) => place.parent_slug === currentPlace.slug,
     );
   }
 
@@ -617,8 +557,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const { currentPlaceDetails, pageUpdatedAt } =
-    await loadHotelPlacePageAndMetadataData(slug);
+  const currentPlaceDetails = await fetchPlaceDetail(slug);
+  const pageLatestUpdatedAt = await fetchPlacePageLatestUpdatedAt(slug);
 
   if (!currentPlaceDetails) {
     return;
@@ -640,7 +580,7 @@ export async function generateMetadata({
           alt: "幸福旅行站 - 親子家庭度假去",
         },
       ],
-      modifiedTime: new Date(pageUpdatedAt).toISOString(),
+      modifiedTime: new Date(pageLatestUpdatedAt).toISOString(),
     },
   };
 }

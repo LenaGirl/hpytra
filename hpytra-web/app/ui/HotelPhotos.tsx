@@ -8,18 +8,7 @@ export default function HotelPhotos({ hotel }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(1);
 
-  const allPhotos = [
-    hotel.photo_1,
-    hotel.photo_2,
-    hotel.photo_3,
-    hotel.photo_4,
-    hotel.photo_5,
-    hotel.photo_6,
-    hotel.photo_7,
-    hotel.photo_8,
-    hotel.photo_9,
-    hotel.photo_10,
-  ];
+  const allPhotos = hotel.photos ?? [];
 
   return (
     <>

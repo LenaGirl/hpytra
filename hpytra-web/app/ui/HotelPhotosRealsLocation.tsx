@@ -48,7 +48,7 @@ export default function HotelPhotosRealsLocation({ hotel }) {
       </section>
 
       {/* 實景 */}
-      {hotel.real_1 && (
+      {hotel.reals[0] && (
         <section
           className={`${hotelPhotosRealsLocationStyles["hotel-reals"]} text-center`}
           id="hotel-reals"
@@ -58,14 +58,13 @@ export default function HotelPhotosRealsLocation({ hotel }) {
           <h2>☆ 實景</h2>
           <hr className="section-divider-style2" />
           {[...Array(6)].map((_, idx) => {
-            const realKey = `real_${idx + 1}`;
-            const realUrl = hotel[realKey];
+            const realUrl = hotel.reals[idx];
 
             if (!realUrl) return null;
 
             return (
               <iframe
-                key={realKey}
+                key={idx}
                 src={realUrl}
                 allowFullScreen
                 loading="lazy"
