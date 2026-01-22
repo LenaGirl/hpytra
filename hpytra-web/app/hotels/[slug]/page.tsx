@@ -5,14 +5,14 @@ import HotelStats from "@/app/ui/HotelStats";
 import AffiliateLinks from "@/app/ui/AffiliateLinks";
 import HotelPhotosRealsLocation from "@/app/ui/HotelPhotosRealsLocation";
 import HotelItem from "@/app/ui/HotelItem";
-import {
-  getPlaces,
-  getLabels,
-  getHotelBySlug,
-  getHotelsByPlace,
-} from "@/app/lib/getDbData";
 import DisplayKkdayClient from "@/app/ui/DisplayKkdayClient";
 import DisplayKlookClient from "@/app/ui/DisplayKlookClient";
+import {
+  fetchPlacesLite,
+  fetchLabelsLite,
+  fetchHotelDetail,
+  fetchNearbyHotels,
+} from "@/app/lib/api";
 
 export default async function HotelsPage({
   params,
@@ -21,10 +21,14 @@ export default async function HotelsPage({
 }) {
   const { slug } = await params;
 
-  const { currentHotel, places, labels, currentPlace, parentPlace } =
-    await loadHotelsPageAndMetadataData(slug);
-
-  const hotelsByPlace = await getHotelsByPlace([currentHotel.place_slug]);
+  const {
+    currentHotel,
+    places,
+    labels,
+    nearbyHotels,
+    currentPlace,
+    parentPlace,
+  } = await loadHotelsPageAndMetadataData(slug);
 
   const updatedDate = new Date(currentHotel.updated_at).toLocaleDateString(
     "en-CA",
@@ -68,7 +72,7 @@ export default async function HotelsPage({
 
           <section className={hotelsStyles["hotel-content"]} id="hotel-content">
             <div className={hotelsStyles["hotel-photo-main"]}>
-              <img src={currentHotel.photo_1} alt={currentHotel.name} />
+              <img src={currentHotel.photos[0]} alt={currentHotel.name} />
             </div>
 
             <div className={hotelsStyles["hotel-info"]}>
@@ -77,7 +81,7 @@ export default async function HotelsPage({
                 <HotelStats
                   hotel={currentHotel}
                   labels={labels}
-                  clickLoc={`${currentHotel.place_slug}_${currentHotel.slug}_hotel-info-ref-price`}
+                  clickLoc={`${currentHotel.place}_${currentHotel.slug}_hotel-info-ref-price`}
                 />
                 <li>
                   <span className="text-strong">地址：</span>
@@ -102,7 +106,7 @@ export default async function HotelsPage({
                   <span className="text-strong">訂房連結：</span>
                   <AffiliateLinks
                     hotel={currentHotel}
-                    clickLoc={`${currentHotel.place_slug}_${currentHotel.slug}_hotel-info`}
+                    clickLoc={`${currentHotel.place}_${currentHotel.slug}_hotel-info`}
                     styleType={"text"}
                   />
                 </li>
@@ -122,7 +126,7 @@ export default async function HotelsPage({
             <div className={hotelsStyles["hotel-affiliate-links-box"]}>
               <AffiliateLinks
                 hotel={currentHotel}
-                clickLoc={`${currentHotel.place_slug}_${currentHotel.slug}_hotel-affiliate-links`}
+                clickLoc={`${currentHotel.place}_${currentHotel.slug}_hotel-affiliate-links`}
                 styleType={"rectangle"}
               />
             </div>
@@ -132,11 +136,11 @@ export default async function HotelsPage({
             <h2>★【優惠】住宿・景點門票・套票・交通</h2>
             <hr className="section-divider-style1" />
             <DisplayKkdayClient
-              placeSlug={currentHotel.place_slug}
+              placeSlug={currentHotel.place}
               pageSlug={slug}
             />
             <DisplayKlookClient
-              placeSlug={currentHotel.place_slug}
+              placeSlug={currentHotel.place}
               pageSlug={slug}
             />
           </section>
@@ -144,12 +148,17 @@ export default async function HotelsPage({
           <section id="hotel-nearby-hotels">
             <h2>★ 附近住宿推薦</h2>
             <hr className="section-divider-style1" />
-            <DisplayNearbyHotels
-              currentHotel={currentHotel}
-              places={places}
-              labels={labels}
-              hotelsByPlace={hotelsByPlace}
-            />
+            <div className="grid-primary">
+              {nearbyHotels.map((hotel) => (
+                <HotelItem
+                  key={hotel.slug}
+                  hotel={hotel}
+                  displayPlace={false}
+                  places={places}
+                  labels={labels}
+                />
+              ))}
+            </div>
           </section>
         </article>
       </main>
@@ -157,7 +166,7 @@ export default async function HotelsPage({
       <div className={hotelsStyles["hotel-affiliate-links-float"]}>
         <AffiliateLinks
           hotel={currentHotel}
-          clickLoc={`${currentHotel.place_slug}_${currentHotel.slug}_hotel-affiliate-links-float`}
+          clickLoc={`${currentHotel.place}_${currentHotel.slug}_hotel-affiliate-links-float`}
           styleType={"circle"}
         />
       </div>
@@ -167,12 +176,16 @@ export default async function HotelsPage({
 
 /*----- 載入頁面與 Metadata 所需的資料 -----*/
 async function loadHotelsPageAndMetadataData(hotelSlug) {
-  const currentHotel = await getHotelBySlug(hotelSlug);
+  const currentHotel = await fetchHotelDetail(hotelSlug);
 
-  const [places, labels] = await Promise.all([getPlaces(), getLabels()]);
+  const [places, labels, nearbyHotels] = await Promise.all([
+    fetchPlacesLite(),
+    fetchLabelsLite(),
+    fetchNearbyHotels(hotelSlug),
+  ]);
 
   const currentPlace = places.find(
-    (place) => place.slug === currentHotel.place_slug
+    (place) => place.slug === currentHotel.place
   );
   const parentPlace = places.find(
     (place) => place.slug === currentPlace.parent_slug
@@ -182,6 +195,7 @@ async function loadHotelsPageAndMetadataData(hotelSlug) {
     currentHotel,
     places,
     labels,
+    nearbyHotels,
     currentPlace,
     parentPlace,
   };
@@ -197,7 +211,7 @@ function DisplayHotelToc({ currentHotel }) {
       <li>
         <Link href="#hotel-photos">照片</Link>
       </li>
-      {currentHotel.real_1 && (
+      {currentHotel.reals[0] && (
         <li>
           <Link href="#hotel-reals">實景</Link>
         </li>
@@ -215,37 +229,6 @@ function DisplayHotelToc({ currentHotel }) {
         <Link href="#hotel-nearby-hotels">附近住宿推薦</Link>
       </li>
     </ol>
-  );
-}
-
-/*----- Render 附近住宿推薦 -----*/
-function DisplayNearbyHotels({ currentHotel, places, labels, hotelsByPlace }) {
-  const currentHotelIndex = hotelsByPlace.findIndex(
-    (hotel) => hotel.slug === currentHotel.slug
-  );
-
-  /* 在 Current Hotel 的前後各5個 Hotels 裡，隨機取 3 個 Hotels */
-  const rangeStart = Math.max(0, currentHotelIndex - 5);
-  const rangeEnd = Math.min(hotelsByPlace.length - 1, currentHotelIndex + 5);
-  const rangeHotels = hotelsByPlace
-    .slice(rangeStart, rangeEnd + 1)
-    .filter((hotel) => hotel.slug !== currentHotel.slug);
-  const nearbyHotels = rangeHotels
-    .toSorted(() => Math.random() - 0.5)
-    .slice(0, 3);
-
-  return (
-    <div className="grid-primary">
-      {nearbyHotels.map((hotel) => (
-        <HotelItem
-          key={hotel.slug}
-          hotel={hotel}
-          displayPlace={false}
-          places={places}
-          labels={labels}
-        />
-      ))}
-    </div>
   );
 }
 

@@ -5,22 +5,11 @@ import PhotoCarousel from "@/app/ui/PhotoCarousel";
 import hotelItemStyles from "./hotelItem.module.css";
 
 export default function HotelItem({ hotel, displayPlace, places, labels }) {
-  const photos = [
-    hotel.photo_main,
-    hotel.photo_2,
-    hotel.photo_3,
-    hotel.photo_4,
-    hotel.photo_5,
-    hotel.photo_6,
-    hotel.photo_7,
-    hotel.photo_8,
-    hotel.photo_9,
-    hotel.photo_10,
-  ].filter(Boolean);
+  const photos = hotel.photos.filter(Boolean);
 
-  const currentPlace = places.find((place) => place.slug === hotel.place_slug);
+  const currentPlace = places.find((place) => place.slug === hotel.place);
   const parentPlace = places.find(
-    (place) => place.slug === currentPlace.parent_slug
+    (place) => place.slug === currentPlace.parent_slug,
   );
 
   return (
@@ -32,7 +21,7 @@ export default function HotelItem({ hotel, displayPlace, places, labels }) {
       {displayPlace && (
         <Link
           className={hotelItemStyles["hotel-item-place"]}
-          href={`/hotel_place/${hotel.place_slug}`}
+          href={`/hotel_place/${hotel.place}`}
           prefetch={false}
         >
           ◎{parentPlace && parentPlace.name}
@@ -51,7 +40,7 @@ export default function HotelItem({ hotel, displayPlace, places, labels }) {
           <HotelStats
             hotel={hotel}
             labels={labels}
-            clickLoc={`${hotel.place_slug}_${hotel.slug}_hotel-item-ref-price`}
+            clickLoc={`${hotel.place}_${hotel.slug}_hotel-item-ref-price`}
           />
         </ul>
       </div>
@@ -86,7 +75,7 @@ export default function HotelItem({ hotel, displayPlace, places, labels }) {
           訂房連結：
           <AffiliateLinks
             hotel={hotel}
-            clickLoc={`${hotel.place_slug}_${hotel.slug}_hotel-item`}
+            clickLoc={`${hotel.place}_${hotel.slug}_hotel-item`}
             styleType={"text"}
           />
         </span>

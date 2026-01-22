@@ -2,17 +2,12 @@ import Image from "next/image";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import MapSearchView from "@/app/ui/MapSearchView";
-import {
-  getPlacesAndMapCenters,
-  getLabels,
-  getHotels,
-} from "@/app/lib/getDbData";
+import { fetchPlacesMap, fetchLabelsLite } from "@/app/lib/api";
 
 export default async function MapPage() {
-  const [placesAndMapCenters, labels, hotels] = await Promise.all([
-    getPlacesAndMapCenters(),
-    getLabels(),
-    getHotels(),
+  const [placesAndMapCenters, labels] = await Promise.all([
+    fetchPlacesMap(),
+    fetchLabelsLite(),
   ]);
 
   return (
@@ -38,7 +33,6 @@ export default async function MapPage() {
           <MapSearchView
             placesAndMapCenters={placesAndMapCenters}
             labels={labels}
-            hotels={hotels}
           />
         </Suspense>
       </main>

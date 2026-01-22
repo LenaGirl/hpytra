@@ -14,7 +14,7 @@ import {
 import HotelStats from "@/app/ui/HotelStats";
 import mapSearchViewStyles from "./mapSearchView.module.css";
 
-export default function MapSearchView({ placesAndMapCenters, labels, hotels }) {
+export default function MapSearchView({ placesAndMapCenters, labels }) {
   /* 將 Places 依照 Parent Place 分組  */
   const { parentPlaces, groupedPlaces } = getGroupedPlaces(placesAndMapCenters);
 
@@ -28,6 +28,7 @@ export default function MapSearchView({ placesAndMapCenters, labels, hotels }) {
 
   const [selectedParentPlace, setSelectedParentPlace] = useState(null);
   const [selectedPlace, setSelectedPlace] = useState(defaultCenter);
+  const [hotelsByPlace, setHotelsByPlace] = useState([]);
 
   function handleParentClick(parent) {
     setSelectedParentPlace(parent);
@@ -44,7 +45,7 @@ export default function MapSearchView({ placesAndMapCenters, labels, hotels }) {
     if (!queryPlaceSlug) return;
 
     const queryPlace = placesAndMapCenters.find(
-      (place) => place.slug === queryPlaceSlug
+      (place) => place.slug === queryPlaceSlug,
     );
     if (!queryPlace) return;
 
@@ -56,11 +57,36 @@ export default function MapSearchView({ placesAndMapCenters, labels, hotels }) {
     setSelectedParentPlace(parent);
   }, [queryPlaceSlug]);
 
-  const hotelsForPlace = getHotelsForPlace(
-    placesAndMapCenters,
-    selectedPlace.slug,
-    hotels
-  );
+  /* 取得所選 Place (含子層級) 的 Hotels */
+  useEffect(() => {
+    if (!selectedPlace || selectedPlace.slug === defaultCenter.slug) return;
+
+    async function loadHotelsByPlace() {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/by-place-tree/${selectedPlace.slug}/map/`,
+      );
+
+      if (!res.ok) {
+        console.error("loadHotelsForPlace error:", res.status);
+        setHotelsByPlace([]);
+        return;
+      }
+
+      const data = await res.json();
+      const hotels = data.map((hotel) => ({
+        ...hotel,
+        coordinates_lat:
+          hotel.coordinates_lat !== null ? Number(hotel.coordinates_lat) : null,
+        coordinates_lng:
+          hotel.coordinates_lng !== null ? Number(hotel.coordinates_lng) : null,
+        google_rating:
+          hotel.google_rating !== null ? Number(hotel.google_rating) : null,
+      }));
+      setHotelsByPlace(hotels);
+    }
+
+    loadHotelsByPlace();
+  }, [selectedPlace]);
 
   const centerLat =
     selectedPlace?.map_center_lat ?? defaultCenter.map_center_lat;
@@ -124,7 +150,7 @@ export default function MapSearchView({ placesAndMapCenters, labels, hotels }) {
             style={{ width: "100%", height: "100%" }}
           >
             {/* 標記該 Place 的 Hotels */}
-            {hotelsForPlace.map((hotel) => {
+            {hotelsByPlace.map((hotel) => {
               return (
                 <HotelMarker
                   key={hotel.slug}
@@ -227,46 +253,18 @@ function HotelMarker({
 /*----- 將 Places 依照 Parent Place 分組 -----*/
 function getGroupedPlaces(placesAndMapCenters) {
   const parentPlaces = placesAndMapCenters.filter(
-    (place) => place.parent_slug === null
+    (place) => place.parent_slug === null,
   );
 
   const groupedPlaces = {};
 
   parentPlaces.forEach((parent) => {
     const children = placesAndMapCenters.filter(
-      (child) => child.parent_slug === parent.slug
+      (child) => child.parent_slug === parent.slug,
     );
 
     groupedPlaces[parent.slug] = children;
   });
 
   return { parentPlaces, groupedPlaces };
-}
-
-/*----- 取得某個 Place 的所有 Hotels -----*/
-function getHotelsForPlace(places, placeSlug, hotels) {
-  const currentPlace = places.find((place) => place.slug === placeSlug);
-
-  if (!currentPlace) {
-    return [];
-  }
-
-  let hotelsForPlace: typeof hotels = [];
-
-  if (currentPlace.parent_slug) {
-    /* Place 為「子層 Place」：「子層級 Place」的 Hotels */
-    hotelsForPlace = hotels.filter((hotel) => hotel.place_slug === placeSlug);
-  } else {
-    /* Place 為「縣市層級 Place」：「縣市層級 Place」+「子 Places」的 Hotels */
-    const childrenSlugs = places
-      .filter((place) => place.parent_slug === placeSlug)
-      .map((place) => place.slug);
-
-    const allSlugs = [placeSlug, ...childrenSlugs];
-
-    hotelsForPlace = hotels.filter((hotel) =>
-      allSlugs.includes(hotel.place_slug)
-    );
-  }
-  return hotelsForPlace;
 }

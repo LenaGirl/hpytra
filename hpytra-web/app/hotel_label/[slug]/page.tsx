@@ -2,14 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import HotelList from "@/app/ui/HotelList";
-import { calcPageUpdatedAt } from "@/app/lib/calcPageUpdatedAt";
-import {
-  getLabels,
-  getLabelBySlug,
-  getPlaces,
-  getHotelsByLabel,
-} from "@/app/lib/getDbData";
 import DisplayKkdayClient from "@/app/ui/DisplayKkdayClient";
+import {
+  fetchLabelDetail,
+  fetchLabelsLite,
+  fetchLabelPageLatestUpdatedAt,
+  fetchPlacesLite,
+  fetchHotelsByLabel,
+} from "@/app/lib/api";
 
 export default async function HotelLabelPage({
   params,
@@ -18,14 +18,23 @@ export default async function HotelLabelPage({
 }) {
   const { slug } = await params;
 
-  const { currentLabel, hotelsForLabel, currentYear, pageUpdatedAt } =
-    await loadHotelLabelPageAndMetadataData(slug);
+  const currentLabel = await fetchLabelDetail(slug); // 404 則 notFound
+  const [hotelsByLabel, labels, places, pageLatestUpdatedAt] =
+    await Promise.all([
+      fetchHotelsByLabel(slug),
+      fetchLabelsLite(),
+      fetchPlacesLite(),
+      fetchLabelPageLatestUpdatedAt(slug),
+    ]);
 
-  const [labels, places] = await Promise.all([getLabels(), getPlaces()]);
+  const currentYear = new Date().getFullYear();
 
-  const updatedDate = new Date(pageUpdatedAt).toLocaleDateString("en-CA", {
-    timeZone: "Asia/Taipei",
-  });
+  const updatedDate = new Date(pageLatestUpdatedAt).toLocaleDateString(
+    "en-CA",
+    {
+      timeZone: "Asia/Taipei",
+    },
+  );
 
   return (
     <>
@@ -64,7 +73,7 @@ export default async function HotelLabelPage({
             <h2>★{currentLabel.name}住宿推薦清單</h2>
             <hr className="section-divider-style1" />
             <HotelList
-              filteredHotels={hotelsForLabel}
+              filteredHotels={hotelsByLabel}
               places={places}
               labels={labels}
             />
@@ -111,25 +120,6 @@ export default async function HotelLabelPage({
   );
 }
 
-/*----- 載入頁面與 Metadata 所需的資料 -----*/
-async function loadHotelLabelPageAndMetadataData(labelSlug) {
-  const [currentLabel, hotelsForLabel] = await Promise.all([
-    getLabelBySlug(labelSlug),
-    getHotelsByLabel(labelSlug),
-  ]);
-
-  const currentYear = new Date().getFullYear();
-
-  const pageUpdatedAt = calcPageUpdatedAt(currentLabel, hotelsForLabel);
-
-  return {
-    currentLabel,
-    hotelsForLabel,
-    currentYear,
-    pageUpdatedAt,
-  };
-}
-
 /*----- Metadata -----*/
 export async function generateMetadata({
   params,
@@ -138,8 +128,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const { currentLabel, currentYear, pageUpdatedAt } =
-    await loadHotelLabelPageAndMetadataData(slug);
+  const currentLabel = await fetchLabelDetail(slug);
+  const pageLatestUpdatedAt = await fetchLabelPageLatestUpdatedAt(slug);
+
+  const currentYear = new Date().getFullYear();
 
   return {
     title: `【${currentYear}${currentLabel.name}】住宿推薦`,
@@ -148,7 +140,7 @@ export async function generateMetadata({
     openGraph: {
       title: `【${currentYear}${currentLabel.name}】住宿推薦`,
       description: currentLabel.description,
-      modifiedTime: new Date(pageUpdatedAt).toISOString(),
+      modifiedTime: new Date(pageLatestUpdatedAt).toISOString(),
     },
   };
 }

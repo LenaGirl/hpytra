@@ -3,13 +3,17 @@ import Image from "next/image";
 import { Fragment } from "react";
 import HotelItem from "@/app/ui/HotelItem";
 import Tabs from "@/app/ui/Tabs";
-import { getPlaces, getLabels, getHotels } from "@/app/lib/getDbData";
+import {
+  fetchPlacesLite,
+  fetchLabelsLite,
+  fetchTopHotels,
+} from "@/app/lib/api";
 
 export default async function HomePage() {
-  const [places, labels, hotels] = await Promise.all([
-    getPlaces(),
-    getLabels(),
-    getHotels(),
+  const [places, labels, topHotels] = await Promise.all([
+    fetchPlacesLite(),
+    fetchLabelsLite(),
+    fetchTopHotels(),
   ]);
 
   return (
@@ -89,7 +93,17 @@ export default async function HomePage() {
         <section>
           <h2 className="text-center">★ 精選好評住宿</h2>
           <hr className="section-divider-style3" />
-          <DisplayTopHotels places={places} labels={labels} hotels={hotels} />
+          <div className="grid-primary">
+            {topHotels.map((hotel) => (
+              <HotelItem
+                key={hotel.slug}
+                hotel={hotel}
+                displayPlace={true}
+                places={places}
+                labels={labels}
+              />
+            ))}
+          </div>
         </section>
       </main>
     </>
@@ -162,6 +176,7 @@ function DisplayPlaceRegions({ places }) {
     </>
   );
 }
+
 function getRegionName(order) {
   if (order >= 100 && order < 200) return "north";
   if (order >= 200 && order < 300) return "central";
@@ -169,13 +184,14 @@ function getRegionName(order) {
   if (order >= 400 && order < 500) return "east";
   return "other";
 }
+
 function DisplayPlacesAndChildren({ places, parentPlaces }) {
   {
     /* Render 各「縣市層級 Places」 及「子 Places」 */
   }
   return parentPlaces.map((parentPlace) => {
     const children = places.filter(
-      (child) => child.parent_slug === parentPlace.slug
+      (child) => child.parent_slug === parentPlace.slug,
     );
     return (
       <div key={parentPlace.slug} className="homepage__places-row">
@@ -189,6 +205,7 @@ function DisplayPlacesAndChildren({ places, parentPlaces }) {
     );
   });
 }
+
 function PlaceButton({ slug, children }) {
   return (
     <Link
@@ -198,27 +215,5 @@ function PlaceButton({ slug, children }) {
     >
       {children}
     </Link>
-  );
-}
-
-/*----- 精選好評住宿 -----*/
-function DisplayTopHotels({ places, labels, hotels }) {
-  const topHotels = hotels
-    .filter((hotel) => hotel.show_on_homepage === true)
-    .toSorted(() => Math.random() - 0.5)
-    .slice(0, 12);
-
-  return (
-    <div className="grid-primary">
-      {topHotels.map((hotel) => (
-        <HotelItem
-          key={hotel.slug}
-          hotel={hotel}
-          displayPlace={true}
-          places={places}
-          labels={labels}
-        />
-      ))}
-    </div>
   );
 }

@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import { getHotelsForSitemap } from "@/app/lib/getDbData";
+import { fetchHotelsLatestUpdatedAt } from "@/app/lib/api";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const hotels = await getHotelsForSitemap();
+  const hotels = await fetchHotelsLatestUpdatedAt();
 
   return hotels.map((hotel) => ({
-    url: `https://www.hyptra.com/hotels/${hotel.slug}`,
+    url: `https://www.hpytra.com/hotels/${hotel.slug}`,
     lastModified: hotel.updated_at ? new Date(hotel.updated_at) : undefined,
   }));
 }

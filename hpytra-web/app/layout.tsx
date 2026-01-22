@@ -4,14 +4,14 @@ import type { Metadata } from "next";
 import "@/app/global.css";
 import BackToTop from "@/app/ui/BackToTop";
 import HeaderMenu from "@/app/ui/HeaderMenu";
-import { getPlaces } from "@/app/lib/getDbData";
+import { fetchPlacesLite } from "@/app/lib/api";
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const places = await getPlaces();
+  const places = await fetchPlacesLite();
 
   return (
     <html lang="zh-tw">
