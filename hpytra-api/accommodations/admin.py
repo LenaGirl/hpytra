@@ -15,7 +15,7 @@ class PlaceAdmin(admin.ModelAdmin):
 class PlaceDetailAdmin(admin.ModelAdmin):
     list_display = ("place", "title")
     list_filter = ("is_active",)
-    search_fields = ("place", "title")
+    search_fields = ("place__name", "place__slug", "title")
     ordering = ("place", "title")
     readonly_fields = ("id", "created_at", "updated_at")
 
@@ -38,6 +38,6 @@ class HotelAdmin(admin.ModelAdmin):
         "order_index",
     )
     list_filter = ("show_on_homepage", "is_active")
-    search_fields = ("name", "slug", "place")
+    search_fields = ("name", "slug", "place__slug")
     ordering = ("place", "order_index")
     readonly_fields = ("id", "created_at", "updated_at")

@@ -2,7 +2,9 @@ Django==5.2
 gunicorn
 psycopg2-binary
 djangorestframework
+djangorestframework-simplejwt
 django-cors-headers
 python-dotenv
 dj-database-url
 whitenoise
+requests

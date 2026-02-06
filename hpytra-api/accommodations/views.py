@@ -1,8 +1,10 @@
 import random
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.db.models import Max
+from django.http import HttpResponsePermanentRedirect
 from .models import Place, PlaceDetail, Label, Hotel
 from .serializers import (
     PlacesLiteSerializer,
@@ -20,6 +22,8 @@ from .serializers import (
 
 
 class PlacesLiteAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         places = (
             Place.objects.filter(is_active=True)
@@ -32,6 +36,8 @@ class PlacesLiteAPIView(APIView):
 
 
 class PlaceDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, slug):
         place = get_object_or_404(
             PlaceDetail,
@@ -43,6 +49,8 @@ class PlaceDetailAPIView(APIView):
 
 
 class PlacesMapAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         places = (
             Place.objects.filter(is_active=True)
@@ -62,6 +70,8 @@ class PlacesMapAPIView(APIView):
 
 
 class PlacePageLatestUpdatedAtAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, slug):
         # page 中 hotels 的最大更新時間
         hotels_latest_updated_at = (
@@ -84,6 +94,8 @@ class PlacePageLatestUpdatedAtAPIView(APIView):
 
 
 class LabelsLiteAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         labels = (
             Label.objects.filter(is_active=True)
@@ -95,6 +107,8 @@ class LabelsLiteAPIView(APIView):
 
 
 class LabelDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, slug):
         label = get_object_or_404(
             Label,
@@ -106,6 +120,8 @@ class LabelDetailAPIView(APIView):
 
 
 class LabelsByPlaceTreeAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, place_slug):
         # 取得 place tree 下的 hotels
         hotels = get_hotels_by_place_tree(place_slug)
@@ -129,6 +145,8 @@ class LabelsByPlaceTreeAPIView(APIView):
 
 
 class LabelPageLatestUpdatedAtAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, slug):
         # page 中 hotels 的最大更新時間
         hotels_latest_updated_at = (
@@ -151,6 +169,8 @@ class LabelPageLatestUpdatedAtAPIView(APIView):
 
 
 class HotelsByLabelAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, label_slug):
         hotels = Hotel.objects.filter(labels__icontains=label_slug).order_by(
             "order_index"
@@ -160,19 +180,29 @@ class HotelsByLabelAPIView(APIView):
 
 
 class HotelDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, slug):
+        # 大小寫不敏感查詢
         hotel = get_object_or_404(
             Hotel,
-            slug=slug,
+            slug__iexact=slug,
             is_active=True,
         )
+
+        # URL slug 含有大寫字母 -> 使用 HTTT(301) 永久重定向到全小寫 URL
+        if slug != slug.lower():
+            return HttpResponsePermanentRedirect(f"/api/hotels/{slug.lower()}/")
+
         serializer = HotelDetailSerializer(hotel)
         return Response(serializer.data)
 
 
 class NearbyHotelsAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, slug):
-        current_hotel = get_object_or_404(Hotel, slug=slug)
+        current_hotel = get_object_or_404(Hotel, slug__iexact=slug)
 
         # 取得同一 place 的所有 hotels，並依 order_index 排序
         hotels = list(current_hotel.place.hotels.all().order_by("order_index"))
@@ -206,6 +236,8 @@ class NearbyHotelsAPIView(APIView):
 
 
 class TopHotelsAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         # 取得所有標記為 show_on_homepage 的 hotels，隨機選 12 筆
         hotels = list(Hotel.objects.filter(show_on_homepage=True))
@@ -217,6 +249,8 @@ class TopHotelsAPIView(APIView):
 
 
 class HotelsByPlaceTreeAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, place_slug):
         # 取得 place (含子層級) 的 hotels
         hotels = get_hotels_by_place_tree(place_slug).order_by("order_index")
@@ -225,6 +259,8 @@ class HotelsByPlaceTreeAPIView(APIView):
 
 
 class HotelsByPlaceTreeMapAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, place_slug):
         # 取得 place (含子層級) 的 hotels
         hotels = get_hotels_by_place_tree(place_slug).only(
@@ -249,6 +285,8 @@ class HotelsByPlaceTreeMapAPIView(APIView):
 
 
 class HotelsLatestUpdatedAtAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         hotels = (
             Hotel.objects.filter(is_active=True)
