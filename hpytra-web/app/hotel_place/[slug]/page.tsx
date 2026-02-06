@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Fragment } from "react";
 import hotelPlaceStyles from "./hotel-place.module.css";
 import { getGroupedLabels } from "@/app/lib/getGroupedLabels";
-import labelGroups from "@/data/label-groups.json";
+import { labelGroups } from "@/data/labelGroups";
 import DisplayKkdayClient from "@/app/ui/DisplayKkdayClient";
 import type { ContentBlock } from "@/app/lib/api";
 import {

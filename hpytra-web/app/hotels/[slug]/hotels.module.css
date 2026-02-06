@@ -1,6 +1,7 @@
 /*=============== Hotel 介紹 ===============*/
 .hotel-content {
   display: flex;
+  position: relative;
   gap: 1rem;
   margin-bottom: 1.3rem;
   padding: 1.2rem;

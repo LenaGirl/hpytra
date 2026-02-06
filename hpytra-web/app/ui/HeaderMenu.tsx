@@ -2,15 +2,29 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuthStore } from "@/app/lib/authStore";
+import { logout } from "@/app/lib/auth";
+import { memberMenuItems } from "@/data/memberMenuItems";
 
 export default function HeaderMenu({ places }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  /* 會員 */
+  const { isAuthenticated } = useAuthStore();
+  const handleLogout = async () => {
+    const ok = window.confirm("確定要登出嗎？");
+    if (!ok) return;
+    await logout();
+  };
+
   /* (小尺寸裝置) 控制選單 Open */
   const [openMenu, setOpenMenu] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const [openMemberSubmenu, setOpenMemberSubmenu] = useState(false);
 
   /* (小尺寸裝置) 換頁收合選單 */
-  const pathname = usePathname();
   useEffect(() => {
     setOpenMenu(false);
     setOpenSubmenu(null);
@@ -22,7 +36,7 @@ export default function HeaderMenu({ places }) {
     if (window.innerWidth < 1024) return;
 
     const submenu = e.currentTarget.querySelector(
-      ".header__submenu.level-3"
+      ".header__submenu.level-3",
     ) as HTMLElement;
     if (!submenu) return;
 
@@ -54,6 +68,7 @@ export default function HeaderMenu({ places }) {
           setOpenMenu((prev) => {
             if (prev) {
               setOpenSubmenu(null);
+              setOpenMemberSubmenu(false);
             }
             return !prev;
           });
@@ -67,7 +82,6 @@ export default function HeaderMenu({ places }) {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="size-6"
           >
             <path
               strokeLinecap="round"
@@ -114,7 +128,7 @@ export default function HeaderMenu({ places }) {
               <button
                 type="button"
                 className="header__submenu-toggle"
-                aria-label="展開選單"
+                aria-label={openSubmenu ? "收合選單" : "展開選單"}
                 aria-expanded={openSubmenu !== null}
                 onClick={() => setOpenSubmenu(openSubmenu ? null : "places")}
               >
@@ -127,7 +141,7 @@ export default function HeaderMenu({ places }) {
                 .filter((place) => !place.parent_slug)
                 .map((place) => {
                   const children = places.filter(
-                    (child) => child.parent_slug === place.slug
+                    (child) => child.parent_slug === place.slug,
                   );
 
                   return (
@@ -154,7 +168,7 @@ export default function HeaderMenu({ places }) {
                               setOpenSubmenu(
                                 openSubmenu === place.slug
                                   ? "places"
-                                  : place.slug
+                                  : place.slug,
                               )
                             }
                           >
@@ -197,6 +211,54 @@ export default function HeaderMenu({ places }) {
             <Link href="/map" className="btn btn-primary" prefetch={false}>
               地圖找房
             </Link>
+          </li>
+          {/* 會員專區 */}
+          <li className="header__menu-item header__member-space">
+            <button
+              type="button"
+              className="header__member btn-text"
+              onClick={() => {
+                if (isAuthenticated) {
+                  setOpenMemberSubmenu((prev) => {
+                    return !prev;
+                  });
+                } else {
+                  router.replace("/login");
+                }
+              }}
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.75}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                />
+              </svg>
+              {!isAuthenticated && <span>登入</span>}
+            </button>
+            {isAuthenticated && (
+              <ul
+                className={`header__submenu ${openMemberSubmenu ? "is-open" : ""}`}
+              >
+                {memberMenuItems.map((item) => (
+                  <li key={item.href} className="header__submenu-item">
+                    <Link href={item.href} prefetch={false}>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+                <li className="header__submenu-item">
+                  <button className="btn-text" onClick={handleLogout}>
+                    [ 登出 ]
+                  </button>
+                </li>
+              </ul>
+            )}
           </li>
         </ul>
       </nav>

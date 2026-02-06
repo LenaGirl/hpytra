@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Fragment } from "react";
-import HotelItem from "@/app/ui/HotelItem";
+import { Fragment, Suspense } from "react";
+import HotelItemCollection from "@/app/ui/HotelItemCollection";
 import Tabs from "@/app/ui/Tabs";
 import {
   fetchPlacesLite,
@@ -94,15 +94,14 @@ export default async function HomePage() {
           <h2 className="text-center">★ 精選好評住宿</h2>
           <hr className="section-divider-style3" />
           <div className="grid-primary">
-            {topHotels.map((hotel) => (
-              <HotelItem
-                key={hotel.slug}
-                hotel={hotel}
+            <Suspense fallback={null}>
+              <HotelItemCollection
+                hotels={topHotels}
                 displayPlace={true}
                 places={places}
                 labels={labels}
               />
-            ))}
+            </Suspense>
           </div>
         </section>
       </main>

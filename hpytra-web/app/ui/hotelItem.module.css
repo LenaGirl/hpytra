@@ -5,6 +5,10 @@
   overflow: hidden;
 }
 
+.hotel-item-content {
+  position: relative;
+}
+
 .hotel-item-place {
   background: var(--color-background-highlight);
   margin-bottom: 0.4rem;

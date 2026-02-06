@@ -416,5 +416,5 @@ export async function fetchHotelsLatestUpdatedAt(): Promise<
 
 /*---------- Utility Functions ----------*/
 function toNumber(value: string | null): number | null {
-  return value !== null ? Number(value) : null;
+  return value !== null && value !== "" ? Number(value) : null;
 }

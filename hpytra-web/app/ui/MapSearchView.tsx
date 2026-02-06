@@ -55,7 +55,7 @@ export default function MapSearchView({ placesAndMapCenters, labels }) {
       parentPlaces.find((place) => place.slug === queryPlace.parent_slug) ||
       queryPlace;
     setSelectedParentPlace(parent);
-  }, [queryPlaceSlug]);
+  }, [queryPlaceSlug, placesAndMapCenters, parentPlaces]);
 
   /* 取得所選 Place (含子層級) 的 Hotels */
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function MapSearchView({ placesAndMapCenters, labels }) {
     }
 
     loadHotelsByPlace();
-  }, [selectedPlace]);
+  }, [selectedPlace, defaultCenter.slug]);
 
   const centerLat =
     selectedPlace?.map_center_lat ?? defaultCenter.map_center_lat;
@@ -222,7 +222,7 @@ function HotelMarker({
                 target="_blank"
                 prefetch={false}
               >
-                <img src={hotel.photo_main} />
+                <img src={hotel.photo_main} alt={hotel.name} />
               </Link>
             </div>
             <div className={mapSearchViewStyles["google-hotel-info"]}>

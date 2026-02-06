@@ -10,6 +10,7 @@ export default function LabelFilterHotelList({
   places,
   labels,
 }) {
+  /* 篩選條件 States */
   const [submittedLabels, setSubmittedLabels] = useState<string[]>([]);
   const [submittedMode, setSubmittedMode] = useState<"or" | "and">("or");
 
@@ -122,11 +123,7 @@ export default function LabelFilterHotelList({
       </form>
 
       {/* Render 篩選後的 Hotel List */}
-      <HotelList
-        filteredHotels={filteredHotels}
-        places={places}
-        labels={labels}
-      />
+      <HotelList hotels={filteredHotels} places={places} labels={labels} />
     </>
   );
 }

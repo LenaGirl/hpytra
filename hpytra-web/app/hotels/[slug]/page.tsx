@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import hotelsStyles from "./hotels.module.css";
 import HotelStats from "@/app/ui/HotelStats";
 import AffiliateLinks from "@/app/ui/AffiliateLinks";
 import HotelPhotosRealsLocation from "@/app/ui/HotelPhotosRealsLocation";
-import HotelItem from "@/app/ui/HotelItem";
+import HotelItemCollection from "@/app/ui/HotelItemCollection";
+import HotelFavorite from "@/app/ui/HotelFavorite";
 import DisplayKkdayClient from "@/app/ui/DisplayKkdayClient";
 import DisplayKlookClient from "@/app/ui/DisplayKlookClient";
 import {
@@ -20,19 +22,31 @@ export default async function HotelsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const lowerSlug = slug.toLowerCase();
 
-  const {
-    currentHotel,
-    places,
-    labels,
-    nearbyHotels,
-    currentPlace,
-    parentPlace,
-  } = await loadHotelsPageAndMetadataData(slug);
+  /* 網址包含大寫字母 -> 跳轉到全小寫網址 */
+  if (slug !== lowerSlug) {
+    redirect(`/hotels/${lowerSlug}`);
+  }
+
+  const currentHotel = await fetchHotelDetail(lowerSlug); // 404 則 notFound
+
+  const [places, labels, nearbyHotels] = await Promise.all([
+    fetchPlacesLite(),
+    fetchLabelsLite(),
+    fetchNearbyHotels(lowerSlug),
+  ]);
+
+  const currentPlace = places.find(
+    (place) => place.slug === currentHotel.place,
+  );
+  const parentPlace = places.find(
+    (place) => place.slug === currentPlace.parent_slug,
+  );
 
   const updatedDate = new Date(currentHotel.updated_at).toLocaleDateString(
     "en-CA",
-    { timeZone: "Asia/Taipei" }
+    { timeZone: "Asia/Taipei" },
   );
 
   return (
@@ -71,6 +85,8 @@ export default async function HotelsPage({
           <time dateTime={updatedDate}>更新時間：{updatedDate}</time>
 
           <section className={hotelsStyles["hotel-content"]} id="hotel-content">
+            <HotelFavorite slug={lowerSlug} />
+
             <div className={hotelsStyles["hotel-photo-main"]}>
               <img src={currentHotel.photos[0]} alt={currentHotel.name} />
             </div>
@@ -81,7 +97,7 @@ export default async function HotelsPage({
                 <HotelStats
                   hotel={currentHotel}
                   labels={labels}
-                  clickLoc={`${currentHotel.place}_${currentHotel.slug}_hotel-info-ref-price`}
+                  clickLoc={`${currentHotel.place}_${lowerSlug}_hotel-info-ref-price`}
                 />
                 <li>
                   <span className="text-strong">地址：</span>
@@ -106,7 +122,7 @@ export default async function HotelsPage({
                   <span className="text-strong">訂房連結：</span>
                   <AffiliateLinks
                     hotel={currentHotel}
-                    clickLoc={`${currentHotel.place}_${currentHotel.slug}_hotel-info`}
+                    clickLoc={`${currentHotel.place}_${lowerSlug}_hotel-info`}
                     styleType={"text"}
                   />
                 </li>
@@ -126,7 +142,7 @@ export default async function HotelsPage({
             <div className={hotelsStyles["hotel-affiliate-links-box"]}>
               <AffiliateLinks
                 hotel={currentHotel}
-                clickLoc={`${currentHotel.place}_${currentHotel.slug}_hotel-affiliate-links`}
+                clickLoc={`${currentHotel.place}_${lowerSlug}_hotel-affiliate-links`}
                 styleType={"rectangle"}
               />
             </div>
@@ -137,11 +153,11 @@ export default async function HotelsPage({
             <hr className="section-divider-style1" />
             <DisplayKkdayClient
               placeSlug={currentHotel.place}
-              pageSlug={slug}
+              pageSlug={lowerSlug}
             />
             <DisplayKlookClient
               placeSlug={currentHotel.place}
-              pageSlug={slug}
+              pageSlug={lowerSlug}
             />
           </section>
 
@@ -149,15 +165,12 @@ export default async function HotelsPage({
             <h2>★ 附近住宿推薦</h2>
             <hr className="section-divider-style1" />
             <div className="grid-primary">
-              {nearbyHotels.map((hotel) => (
-                <HotelItem
-                  key={hotel.slug}
-                  hotel={hotel}
-                  displayPlace={false}
-                  places={places}
-                  labels={labels}
-                />
-              ))}
+              <HotelItemCollection
+                hotels={nearbyHotels}
+                displayPlace={false}
+                places={places}
+                labels={labels}
+              />
             </div>
           </section>
         </article>
@@ -166,39 +179,12 @@ export default async function HotelsPage({
       <div className={hotelsStyles["hotel-affiliate-links-float"]}>
         <AffiliateLinks
           hotel={currentHotel}
-          clickLoc={`${currentHotel.place}_${currentHotel.slug}_hotel-affiliate-links-float`}
+          clickLoc={`${currentHotel.place}_${lowerSlug}_hotel-affiliate-links-float`}
           styleType={"circle"}
         />
       </div>
     </>
   );
-}
-
-/*----- 載入頁面與 Metadata 所需的資料 -----*/
-async function loadHotelsPageAndMetadataData(hotelSlug) {
-  const currentHotel = await fetchHotelDetail(hotelSlug);
-
-  const [places, labels, nearbyHotels] = await Promise.all([
-    fetchPlacesLite(),
-    fetchLabelsLite(),
-    fetchNearbyHotels(hotelSlug),
-  ]);
-
-  const currentPlace = places.find(
-    (place) => place.slug === currentHotel.place
-  );
-  const parentPlace = places.find(
-    (place) => place.slug === currentPlace.parent_slug
-  );
-
-  return {
-    currentHotel,
-    places,
-    labels,
-    nearbyHotels,
-    currentPlace,
-    parentPlace,
-  };
 }
 
 /*----- Render 目錄 -----*/
@@ -240,8 +226,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const { currentHotel, currentPlace, labels } =
-    await loadHotelsPageAndMetadataData(slug);
+  const currentHotel = await fetchHotelDetail(slug.toLowerCase());
+
+  const [places, labels] = await Promise.all([
+    fetchPlacesLite(),
+    fetchLabelsLite(),
+  ]);
+  const currentPlace = places.find(
+    (place) => place.slug === currentHotel.place,
+  );
 
   const labelNames: string[] =
     currentHotel.labels

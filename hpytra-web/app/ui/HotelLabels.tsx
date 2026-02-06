@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { getGroupedLabels } from "@/app/lib/getGroupedLabels";
-import labelGroups from "@/data/label-groups.json";
+import { labelGroups } from "@/data/labelGroups";
 import hotelLabelsStyles from "./hotelLabels.module.css";
 
 export default function HotelLabels({ hotel, labels }) {
@@ -12,7 +12,7 @@ export default function HotelLabels({ hotel, labels }) {
   /* 取得 Hotel Labels 物件 */
   const sortedLabels = hotel.labels
     .map((hotelLabelSlug) =>
-      labels.find((label) => label.slug === hotelLabelSlug)
+      labels.find((label) => label.slug === hotelLabelSlug),
     )
     .filter(Boolean)
     .toSorted((a, b) => a.order_index - b.order_index);

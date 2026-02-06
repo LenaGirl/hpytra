@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import "@/app/global.css";
 import BackToTop from "@/app/ui/BackToTop";
 import HeaderMenu from "@/app/ui/HeaderMenu";
+import { AuthProvider } from "@/app/providers/AuthProvider";
 import { fetchPlacesLite } from "@/app/lib/api";
 
 export default async function RootLayout({
@@ -16,56 +17,58 @@ export default async function RootLayout({
   return (
     <html lang="zh-tw">
       <body>
-        <header>
-          <Link href="/" prefetch={false}>
-            <Image
-              src="/hpytra_logo.png"
-              alt="幸福旅行站"
-              width={136}
-              height={41}
-              priority
-            />
-          </Link>
-          <HeaderMenu places={places} />
-        </header>
-        {children}
-        <BackToTop />
-        <footer>
-          <div className="footer__content">
-            <div className="footer__about text-strong">
-              <Link href="/" prefetch={false}>
-                <Image
-                  src="/hpytra_logo.png"
-                  alt="幸福旅行站"
-                  width={240}
-                  height={72}
-                />
-              </Link>
-              <p>提供台灣各地優質住宿推薦，</p>
-              <p>陪伴您與家人展開幸福旅程。</p>
-            </div>
-            <div className="footer__disclaimer">
-              <p className="text-strong">聯盟行銷</p>
-              <p className="text-small">
-                本站部分連結與商家有聯盟合作關係，若您透過我們的連結訂購產品，我們將會獲得少量佣金，以維持營運網站，但其不會影響您的任何權益。
-              </p>
-              <p>
-                [
-                <Link href="/affiliate_disclosure" prefetch={false}>
-                  免責聲明
+        <AuthProvider>
+          <header>
+            <Link href="/" prefetch={false}>
+              <Image
+                src="/hpytra_logo.png"
+                alt="幸福旅行站"
+                width={136}
+                height={41}
+                priority
+              />
+            </Link>
+            <HeaderMenu places={places} />
+          </header>
+          {children}
+          <BackToTop />
+          <footer>
+            <div className="footer__content">
+              <div className="footer__about text-strong">
+                <Link href="/" prefetch={false}>
+                  <Image
+                    src="/hpytra_logo.png"
+                    alt="幸福旅行站"
+                    width={240}
+                    height={72}
+                  />
                 </Link>
-                ] [
-                <Link href="/privacy_policy" prefetch={false}>
-                  隱私權政策
-                </Link>
-                ]
-              </p>
+                <p>提供台灣各地優質住宿推薦，</p>
+                <p>陪伴您與家人展開幸福旅程。</p>
+              </div>
+              <div className="footer__disclaimer">
+                <p className="text-strong">聯盟行銷</p>
+                <p className="text-small">
+                  本站部分連結與商家有聯盟合作關係，若您透過我們的連結訂購產品，我們將會獲得少量佣金，以維持營運網站，但其不會影響您的任何權益。
+                </p>
+                <p>
+                  [
+                  <Link href="/affiliate_disclosure" prefetch={false}>
+                    免責聲明
+                  </Link>
+                  ] [
+                  <Link href="/privacy_policy" prefetch={false}>
+                    隱私權政策
+                  </Link>
+                  ]
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="footer__copyright">
-            <p>Copyright ©幸福旅行站</p>
-          </div>
-        </footer>
+            <div className="footer__copyright">
+              <p>Copyright ©幸福旅行站</p>
+            </div>
+          </footer>
+        </AuthProvider>
       </body>
     </html>
   );
