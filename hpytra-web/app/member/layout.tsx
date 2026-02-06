@@ -65,6 +65,9 @@ export default function MemberLayout({
       {/* 手機 */}
       <div className={memberStyles["member-mobile-profile"]}>
         {user && <MemberProfile user={user} />}
+        <button className="btn-text" onClick={handleLogout}>
+          [ 登出 ]
+        </button>
       </div>
       <nav className={memberStyles["member-mobile-nav"]}>
         {memberMenuItems.map((item) => (
@@ -77,12 +80,6 @@ export default function MemberLayout({
             {item.label}
           </Link>
         ))}
-        <button
-          className={`${memberStyles["member-mobile-nav-item"]} btn-text`}
-          onClick={handleLogout}
-        >
-          [ 登出 ]
-        </button>
       </nav>
 
       {/* 右側內容 */}
