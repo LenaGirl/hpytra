@@ -82,16 +82,6 @@ class LoginView(APIView):
             status=status.HTTP_200_OK,
         )
 
-        # 清理舊 token
-        res.delete_cookie(
-            key="hpytra_access",
-            path="/",
-        )
-        res.delete_cookie(
-            key="hpytra_refresh",
-            path="/",
-        )
-
         # Access Token
         res.set_cookie(
             key="hpytra_access",
