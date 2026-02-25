@@ -47,9 +47,8 @@ export default async function RootLayout({
                 <p>陪伴您與家人展開幸福旅程。</p>
               </div>
               <div className="footer__disclaimer">
-                <p className="text-strong">聯盟行銷</p>
                 <p className="text-small">
-                  本站部分連結與商家有聯盟合作關係，若您透過我們的連結訂購產品，我們將會獲得少量佣金，以維持營運網站，但其不會影響您的任何權益。
+                  聯盟行銷說明：本站部分連結與商家有聯盟合作，若您點擊購買，我們將獲得微薄佣金支持營運，這不會增加您的購買費用。感謝您的支持！
                 </p>
                 <p>
                   [
