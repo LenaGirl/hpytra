@@ -1,10 +1,14 @@
 from django.db import models
 import json
 from django.contrib.postgres.fields import ArrayField
+import uuid
 
 
 class Place(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+    )
     name = models.CharField(max_length=30)
     slug = models.SlugField(unique=True)
     parent_slug = models.SlugField(blank=True, null=True)
@@ -51,7 +55,10 @@ class SafeJSONField(models.JSONField):
 
 
 class PlaceDetail(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+    )
 
     place = models.OneToOneField(
         "Place",
@@ -80,7 +87,10 @@ class PlaceDetail(models.Model):
 
 
 class Label(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+    )
     name = models.CharField(max_length=30)
     slug = models.SlugField(unique=True)
 
@@ -105,7 +115,10 @@ class Label(models.Model):
 
 
 class Hotel(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+    )
     name = models.CharField(max_length=60)
     slug = models.SlugField(unique=True)
 
