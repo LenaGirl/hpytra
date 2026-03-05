@@ -1,31 +1,6 @@
 from rest_framework import serializers
 from .models import Place, PlaceDetail, Label, Hotel
 
-# =========================
-# Mixins
-# =========================
-
-
-class HotelPhotosMixin:
-    def get_photos(self, obj):
-        return [
-            obj.photo_1,
-            obj.photo_2,
-            obj.photo_3,
-            obj.photo_4,
-            obj.photo_5,
-            obj.photo_6,
-            obj.photo_7,
-            obj.photo_8,
-            obj.photo_9,
-            obj.photo_10,
-        ]
-
-
-# =========================
-# Serializers
-# =========================
-
 
 class PlacesLiteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -87,9 +62,7 @@ class LabelsByPlaceSerializer(serializers.ModelSerializer):
         ]
 
 
-class HotelDetailSerializer(HotelPhotosMixin, serializers.ModelSerializer):
-    photos = serializers.SerializerMethodField()
-    reals = serializers.SerializerMethodField()
+class HotelDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hotel
@@ -115,19 +88,8 @@ class HotelDetailSerializer(HotelPhotosMixin, serializers.ModelSerializer):
             "updated_at",
         ]
 
-    def get_reals(self, obj):
-        return [
-            obj.real_1,
-            obj.real_2,
-            obj.real_3,
-            obj.real_4,
-            obj.real_5,
-            obj.real_6,
-        ]
 
-
-class HotelItemSerializer(HotelPhotosMixin, serializers.ModelSerializer):
-    photos = serializers.SerializerMethodField()
+class HotelItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hotel

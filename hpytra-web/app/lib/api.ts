@@ -1,12 +1,5 @@
 import { notFound } from "next/navigation";
 
-/*---------- Cache Durations ----------*/
-const CACHE = {
-  LONG: 60 * 60 * 24, // 24 小時（幾乎不變）
-  NORMAL: 60 * 60 * 6, // 6 小時（偶爾更新）
-  SHORT: 60 * 10, // 10 分鐘（動態但不即時）
-};
-
 /*---------- Type Definitions ----------*/
 type PlaceLite = {
   name: string;
@@ -128,9 +121,6 @@ type HotelLatestUpdatedAt = {
 export async function fetchPlacesLite(): Promise<PlaceLite[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/`,
-    {
-      next: { revalidate: CACHE.LONG },
-    },
   );
 
   if (!res.ok) {
@@ -144,9 +134,6 @@ export async function fetchPlacesLite(): Promise<PlaceLite[]> {
 export async function fetchPlacesMap(): Promise<PlaceMap[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/map/`,
-    {
-      next: { revalidate: CACHE.LONG },
-    },
   );
 
   if (!res.ok) {
@@ -169,9 +156,6 @@ export async function fetchPlacesMap(): Promise<PlaceMap[]> {
 export async function fetchPlaceDetail(slug: string): Promise<PlaceDetail> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/${slug}/`,
-    {
-      next: { revalidate: CACHE.LONG },
-    },
   );
 
   if (res.status === 404) {
@@ -190,10 +174,7 @@ export async function fetchPlacePageLatestUpdatedAt(
   slug: string,
 ): Promise<string | null> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/${slug}/latest-updated-at/`,
-    {
-      next: { revalidate: CACHE.LONG },
-    },
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/updates/places/${slug}/`,
   );
 
   if (!res.ok) {
@@ -209,9 +190,6 @@ export async function fetchPlacePageLatestUpdatedAt(
 export async function fetchLabelsLite(): Promise<LabelLite[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/labels/`,
-    {
-      next: { revalidate: CACHE.LONG },
-    },
   );
 
   if (!res.ok) {
@@ -225,9 +203,6 @@ export async function fetchLabelsLite(): Promise<LabelLite[]> {
 export async function fetchLabelDetail(slug: string): Promise<LabelDetail> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/labels/${slug}/`,
-    {
-      next: { revalidate: CACHE.LONG },
-    },
   );
 
   if (res.status === 404) {
@@ -246,10 +221,7 @@ export async function fetchLabelsByPlace(
   placeSlug: string,
 ): Promise<LabelsByPlace[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/labels/by-place-tree/${placeSlug}/`,
-    {
-      next: { revalidate: CACHE.NORMAL },
-    },
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/${placeSlug}/labels/`,
   );
 
   if (!res.ok) {
@@ -264,10 +236,7 @@ export async function fetchLabelPageLatestUpdatedAt(
   slug: string,
 ): Promise<string | null> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/labels/${slug}/latest-updated-at/`,
-    {
-      next: { revalidate: CACHE.LONG },
-    },
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/updates/labels/${slug}/`,
   );
 
   if (!res.ok) {
@@ -283,9 +252,6 @@ export async function fetchLabelPageLatestUpdatedAt(
 export async function fetchHotelDetail(slug: string): Promise<HotelDetail> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/${slug}/`,
-    {
-      next: { revalidate: CACHE.NORMAL },
-    },
   );
 
   if (res.status === 404) {
@@ -309,9 +275,6 @@ export async function fetchHotelDetail(slug: string): Promise<HotelDetail> {
 export async function fetchNearbyHotels(slug: string): Promise<HotelItem[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/${slug}/nearby/`,
-    {
-      next: { revalidate: CACHE.NORMAL },
-    },
   );
 
   if (!res.ok) {
@@ -331,9 +294,6 @@ export async function fetchNearbyHotels(slug: string): Promise<HotelItem[]> {
 export async function fetchTopHotels(): Promise<HotelItem[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/top/`,
-    {
-      next: { revalidate: CACHE.SHORT },
-    },
   );
 
   if (!res.ok) {
@@ -354,10 +314,7 @@ export async function fetchHotelsByLabel(
   labelSlug: string,
 ): Promise<HotelItem[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/labels/${labelSlug}/`,
-    {
-      next: { revalidate: CACHE.NORMAL },
-    },
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/labels/${labelSlug}/hotels/`,
   );
 
   if (!res.ok) {
@@ -378,10 +335,7 @@ export async function fetchHotelsByPlaceTree(
   placeSlug: string,
 ): Promise<HotelItem[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/by-place-tree/${placeSlug}/`,
-    {
-      next: { revalidate: CACHE.NORMAL },
-    },
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/${placeSlug}/hotels/`,
   );
 
   if (!res.ok) {
@@ -402,10 +356,7 @@ export async function fetchHotelsLatestUpdatedAt(): Promise<
   HotelLatestUpdatedAt[]
 > {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/latest-updated-at/`,
-    {
-      next: { revalidate: CACHE.LONG },
-    },
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/updates/hotels/`,
   );
   if (!res.ok) {
     console.error("fetchHotelsLatestUpdatedAt api error:", res.status);

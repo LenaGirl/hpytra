@@ -1,6 +1,7 @@
 from django.db import models
-import json
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
+import json
 import uuid
 
 
@@ -31,6 +32,10 @@ class Place(models.Model):
     class Meta:
         db_table = "places"
         managed = False
+        indexes = [
+            models.Index(fields=["parent_slug"]),
+            models.Index(fields=["order_index"]),
+        ]
 
     def __str__(self):
         return self.name
@@ -81,6 +86,9 @@ class PlaceDetail(models.Model):
     class Meta:
         db_table = "place_details"
         managed = False
+        indexes = [
+            models.Index(fields=["updated_at"]),
+        ]
 
     def __str__(self):
         return self.place.slug
@@ -109,6 +117,10 @@ class Label(models.Model):
     class Meta:
         db_table = "labels"
         managed = False
+        indexes = [
+            models.Index(fields=["category"]),
+            models.Index(fields=["order_index"]),
+        ]
 
     def __str__(self):
         return self.name
@@ -135,7 +147,7 @@ class Hotel(models.Model):
     address = models.CharField(max_length=200, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
-    labels = ArrayField(models.SlugField(), blank=True, default=list)
+    labels = ArrayField(models.TextField(), blank=True, default=list)
 
     coordinates_lat = models.DecimalField(
         max_digits=9, decimal_places=6, blank=True, null=True
@@ -182,9 +194,33 @@ class Hotel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
 
+    @property
+    def photos(self):
+        photos = []
+        for i in range(1, 11):
+            photo = getattr(self, f"photo_{i}")
+            if photo:
+                photos.append(photo)
+        return photos
+
+    @property
+    def reals(self):
+        reals = []
+        for i in range(1, 7):
+            real = getattr(self, f"real_{i}")
+            if real:
+                reals.append(real)
+        return reals
+
     class Meta:
         db_table = "hotels"
         managed = False
+        indexes = [
+            models.Index(fields=["place", "order_index"]),
+            models.Index(fields=["show_on_homepage"]),
+            models.Index(fields=["updated_at"]),
+            GinIndex(fields=["labels"]),
+        ]
 
     def __str__(self):
         return self.name

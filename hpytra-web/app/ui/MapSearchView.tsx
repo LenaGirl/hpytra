@@ -63,7 +63,7 @@ export default function MapSearchView({ placesAndMapCenters, labels }) {
 
     async function loadHotelsByPlace() {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/by-place-tree/${selectedPlace.slug}/map/`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/${selectedPlace.slug}/hotels/map/`,
       );
 
       if (!res.ok) {
