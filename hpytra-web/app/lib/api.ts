@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { apiFetch, apiFetchOr404 } from "./apiClient";
 
 /*---------- Type Definitions ----------*/
 type PlaceLite = {
@@ -94,7 +94,7 @@ type HotelDetail = {
   updated_at: string;
 };
 
-type HotelItem = {
+export type HotelItem = {
   name: string;
   slug: string;
   google_rating: number | null;
@@ -112,260 +112,111 @@ type HotelItem = {
   real_1: string | null;
 };
 
-type HotelLatestUpdatedAt = {
+type HotelsLatestUpdatedAt = {
   slug: string;
   updated_at: string;
 };
 
+type HotelMap = {
+  name: string;
+  slug: string;
+  coordinates_lat: number | null;
+  coordinates_lng: number | null;
+  google_rating: number | null;
+  place: string;
+  labels: string[] | null;
+  order_index: number;
+  price_double_room: number | null;
+  price_quad_room: number | null;
+  agoda_slug: string | null;
+  booking_slug: string | null;
+  klook_slug: string | null;
+  kkday_slug: string | null;
+  photo_main: string | null;
+};
+
 /*---------- Place ----------*/
 export async function fetchPlacesLite(): Promise<PlaceLite[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/`,
-  );
-
-  if (!res.ok) {
-    console.error("fetchPlacesLite api error:", res.status);
-    return [];
-  }
-
-  return res.json();
+  return apiFetch<PlaceLite[]>("/api/places/");
 }
 
 export async function fetchPlacesMap(): Promise<PlaceMap[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/map/`,
-  );
-
-  if (!res.ok) {
-    console.error("fetchPlacesMap api error:", res.status);
-    return [];
-  }
-
-  const data = await res.json();
-  const places = data.map((place) => ({
-    ...place,
-    map_center_lat: toNumber(place.map_center_lat),
-    map_center_lng: toNumber(place.map_center_lng),
-    map_zoom: toNumber(place.map_zoom),
-  }));
-
-  return places;
+  return apiFetch<PlaceMap[]>("/api/places/map/");
 }
 
 /*---------- Place Detail ----------*/
 export async function fetchPlaceDetail(slug: string): Promise<PlaceDetail> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/${slug}/`,
-  );
-
-  if (res.status === 404) {
-    notFound();
-  }
-
-  if (!res.ok) {
-    console.error("fetchPlaceDetail api error:", res.status);
-    throw new Error("Failed to fetch place detail");
-  }
-
-  return res.json();
+  return apiFetchOr404<PlaceDetail>(`/api/places/${slug}/`);
 }
 
 export async function fetchPlacePageLatestUpdatedAt(
   slug: string,
-): Promise<string | null> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/updates/places/${slug}/`,
+): Promise<string> {
+  const data = await apiFetch<{ updated_at: string }>(
+    `/api/updates/places/${slug}/`,
   );
 
-  if (!res.ok) {
-    console.error("fetchPlacePageLatestUpdatedAt api error:", res.status);
-    return null;
-  }
-
-  const data = await res.json();
   return data.updated_at;
 }
 
 /*---------- Label ----------*/
 export async function fetchLabelsLite(): Promise<LabelLite[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/labels/`,
-  );
-
-  if (!res.ok) {
-    console.error("fetchLabelsLite api error:", res.status);
-    return [];
-  }
-
-  return res.json();
+  return apiFetch<LabelLite[]>("/api/labels/");
 }
 
 export async function fetchLabelDetail(slug: string): Promise<LabelDetail> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/labels/${slug}/`,
-  );
-
-  if (res.status === 404) {
-    notFound();
-  }
-
-  if (!res.ok) {
-    console.error("fetchLabelDetail api error:", res.status);
-    throw new Error("Failed to fetch label detail");
-  }
-
-  return res.json();
+  return apiFetchOr404<LabelDetail>(`/api/labels/${slug}/`);
 }
 
 export async function fetchLabelsByPlace(
   placeSlug: string,
 ): Promise<LabelsByPlace[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/${placeSlug}/labels/`,
-  );
-
-  if (!res.ok) {
-    console.error("fetchLabelsByPlace api error:", res.status);
-    return [];
-  }
-
-  return res.json();
+  return apiFetch<LabelsByPlace[]>(`/api/places/${placeSlug}/labels/`);
 }
 
 export async function fetchLabelPageLatestUpdatedAt(
   slug: string,
-): Promise<string | null> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/updates/labels/${slug}/`,
+): Promise<string> {
+  const data = await apiFetch<{ updated_at: string }>(
+    `/api/updates/labels/${slug}/`,
   );
 
-  if (!res.ok) {
-    console.error("fetchLabelPageLatestUpdatedAt api error:", res.status);
-    return null;
-  }
-
-  const data = await res.json();
   return data.updated_at;
 }
 
 /*---------- Hotel ----------*/
 export async function fetchHotelDetail(slug: string): Promise<HotelDetail> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/${slug}/`,
-  );
-
-  if (res.status === 404) {
-    notFound();
-  }
-
-  if (!res.ok) {
-    console.error("fetchHotelDetail api error:", res.status);
-    throw new Error("Failed to fetch hotel detail");
-  }
-
-  const data = await res.json();
-  const hotelDetail = {
-    ...data,
-    google_rating: toNumber(data.google_rating),
-  };
-
-  return hotelDetail;
+  return apiFetchOr404<HotelDetail>(`/api/hotels/${slug}/`);
 }
 
 export async function fetchNearbyHotels(slug: string): Promise<HotelItem[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/${slug}/nearby/`,
-  );
-
-  if (!res.ok) {
-    console.error("fetchNearbyHotels api error:", res.status);
-    return [];
-  }
-
-  const data = await res.json();
-  const hotels = data.map((hotel) => ({
-    ...hotel,
-    google_rating: toNumber(hotel.google_rating),
-  }));
-
-  return hotels;
+  return apiFetch<HotelItem[]>(`/api/hotels/${slug}/nearby/`);
 }
 
 export async function fetchTopHotels(): Promise<HotelItem[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/hotels/top/`,
-  );
-
-  if (!res.ok) {
-    console.error("fetchTopHotels api error:", res.status);
-    return [];
-  }
-
-  const data = await res.json();
-  const hotels = data.map((hotel) => ({
-    ...hotel,
-    google_rating: toNumber(hotel.google_rating),
-  }));
-
-  return hotels;
+  return apiFetch<HotelItem[]>("/api/hotels/top/");
 }
 
 export async function fetchHotelsByLabel(
   labelSlug: string,
 ): Promise<HotelItem[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/labels/${labelSlug}/hotels/`,
-  );
-
-  if (!res.ok) {
-    console.error("fetchHotelsByLabel api error:", res.status);
-    return [];
-  }
-
-  const data = await res.json();
-  const hotels = data.map((hotel) => ({
-    ...hotel,
-    google_rating: toNumber(hotel.google_rating),
-  }));
-
-  return hotels;
+  return apiFetch<HotelItem[]>(`/api/labels/${labelSlug}/hotels/`);
 }
 
 export async function fetchHotelsByPlaceTree(
   placeSlug: string,
 ): Promise<HotelItem[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/${placeSlug}/hotels/`,
-  );
+  return apiFetch<HotelItem[]>(`/api/places/${placeSlug}/hotels/`);
+}
 
-  if (!res.ok) {
-    console.error("fetchHotelsByPlaceTree api error:", res.status);
-    return [];
-  }
-
-  const data = await res.json();
-  const hotels = data.map((hotel) => ({
-    ...hotel,
-    google_rating: toNumber(hotel.google_rating),
-  }));
-
-  return hotels;
+export async function fetchHotelsMapByPlace(
+  placeSlug: string,
+): Promise<HotelMap[]> {
+  return apiFetch<HotelMap[]>(`/api/places/${placeSlug}/hotels/map/`);
 }
 
 export async function fetchHotelsLatestUpdatedAt(): Promise<
-  HotelLatestUpdatedAt[]
+  HotelsLatestUpdatedAt[]
 > {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/updates/hotels/`,
-  );
-  if (!res.ok) {
-    console.error("fetchHotelsLatestUpdatedAt api error:", res.status);
-    return [];
-  }
-  return res.json();
-}
-
-/*---------- Utility Functions ----------*/
-function toNumber(value: string | null): number | null {
-  return value !== null && value !== "" ? Number(value) : null;
+  return apiFetch<HotelsLatestUpdatedAt[]>("/api/updates/hotels/");
 }

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -39,13 +40,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop("password2")
-
-        user = User.objects.create_user(
-            username=validated_data["username"],
-            email=validated_data["email"],
-            password=validated_data["password"],
-        )
-        return user
+        return User.objects.create_user(**validated_data)
 
 
 class LoginSerializer(serializers.Serializer):
@@ -57,17 +52,13 @@ class LoginSerializer(serializers.Serializer):
         password = data["password"]
 
         # Email 或 帳號登入
-        if "@" in identifier:
-            try:
-                user = User.objects.get(email=identifier)
-                username = user.username
-            except User.DoesNotExist:
-                raise serializers.ValidationError("帳號或密碼錯誤")
-        else:
-            username = identifier
+        user = User.objects.filter(Q(username=identifier) | Q(email=identifier)).first()
+
+        if not user:
+            raise serializers.ValidationError("帳號或密碼錯誤")
 
         # 驗證帳號密碼
-        user = authenticate(username=username, password=password)
+        user = authenticate(username=user.username, password=password)
 
         if not user:
             raise serializers.ValidationError("帳號或密碼錯誤")

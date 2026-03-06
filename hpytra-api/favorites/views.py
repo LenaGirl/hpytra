@@ -58,6 +58,10 @@ class FavoriteStatusByHotelsAPIView(APIView):
 
         hotel_slugs = request.data.get("hotel_slugs", [])
 
+        # 限制 hotel_slugs 的長度，避免過多的資料庫查詢
+        if len(hotel_slugs) > 100:
+            return Response([], status=400)
+
         if not isinstance(hotel_slugs, list) or not hotel_slugs:
             return Response([])
 

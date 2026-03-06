@@ -1,18 +1,29 @@
-import { authClient } from "@/app/lib/authClient";
+import { apiFetchAuth } from "@/app/lib/apiClient";
 import { useAuthStore } from "@/app/lib/authStore";
+
+type User = {
+  id: number;
+  username: string;
+  email: string;
+};
 
 export async function login(
   identifier: string,
   password: string,
   turnstileToken?: string,
-) {
+): Promise<User> {
   await logout(); // 確保先清理舊的登入狀態
-  const res = await authClient.post("/api/auth/login/", {
-    identifier,
-    password,
-    turnstile_token: turnstileToken,
+
+  const data = await apiFetchAuth<{ user: any }>("/api/auth/login/", {
+    method: "POST",
+    body: JSON.stringify({
+      identifier,
+      password,
+      turnstile_token: turnstileToken,
+    }),
   });
-  return res.data.user;
+
+  return data.user;
 }
 
 export async function register(
@@ -22,43 +33,50 @@ export async function register(
   password2: string,
   turnstileToken?: string,
 ) {
-  const res = await authClient.post("/api/auth/register/", {
-    username,
-    email,
-    password,
-    password2,
-    turnstile_token: turnstileToken,
+  return apiFetchAuth("/api/auth/register/", {
+    method: "POST",
+    body: JSON.stringify({
+      username,
+      email,
+      password,
+      password2,
+      turnstile_token: turnstileToken,
+    }),
   });
-  return res.data;
 }
 
-export async function getMe() {
-  const res = await authClient.get("/api/auth/me/");
-  return res.data;
+export async function getMe(): Promise<User> {
+  return apiFetchAuth("/api/auth/me/");
 }
 
 export async function logout() {
   try {
-    await authClient.post("/api/auth/logout/");
+    await apiFetchAuth("/api/auth/logout/", {
+      method: "POST",
+    });
   } catch {
   } finally {
     useAuthStore.getState().logout();
   }
 }
 
-export async function refresh() {
-  const res = await authClient.post("/api/auth/refresh/");
-  return res.data.user;
+export async function refresh(): Promise<User> {
+  const data = await apiFetchAuth<{ user: any }>("/api/auth/refresh/", {
+    method: "POST",
+  });
+
+  return data.user;
 }
 
 export async function changePassword(
   currentPassword: string,
   newPassword: string,
 ) {
-  const res = await authClient.post("/api/auth/change-password/", {
-    current_password: currentPassword,
-    new_password: newPassword,
+  return apiFetchAuth("/api/auth/change-password/", {
+    method: "POST",
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
   });
-
-  return res;
 }

@@ -28,6 +28,7 @@ class Favorite(models.Model):
     class Meta:
         db_table = "favorites"
         managed = False
+        unique_together = ("user", "hotel")
 
     def __str__(self):
         return str(self.id)

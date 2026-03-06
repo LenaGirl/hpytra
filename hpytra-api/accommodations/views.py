@@ -72,6 +72,7 @@ class PlacesMapAPIView(ListAPIView):
 
 @method_decorator(cache_page(settings.CACHE["LONG"]), name="dispatch")
 class PlacePageLatestUpdatedAtAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     def get(self, request, slug):
@@ -148,6 +149,7 @@ class LabelsByPlaceTreeAPIView(APIView):
 
 @method_decorator(cache_page(settings.CACHE["LONG"]), name="dispatch")
 class LabelPageLatestUpdatedAtAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     def get(self, request, slug):
@@ -306,6 +308,7 @@ class HotelsByPlaceTreeMapAPIView(ListAPIView):
 
 @method_decorator(cache_page(settings.CACHE["LONG"]), name="dispatch")
 class HotelsLatestUpdatedAtAPIView(ListAPIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = HotelsLatestUpdatedAtSerializer
 

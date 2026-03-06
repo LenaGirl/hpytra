@@ -12,7 +12,13 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const places = await fetchPlacesLite();
+  let places = [];
+
+  try {
+    places = await fetchPlacesLite();
+  } catch (err) {
+    console.error("places fetch failed", err);
+  }
 
   return (
     <html lang="zh-tw">

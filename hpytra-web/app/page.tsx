@@ -10,11 +10,19 @@ import {
 } from "@/app/lib/api";
 
 export default async function HomePage() {
-  const [places, labels, topHotels] = await Promise.all([
-    fetchPlacesLite(),
-    fetchLabelsLite(),
-    fetchTopHotels(),
-  ]);
+  let places = [];
+  let labels = [];
+  let topHotels = [];
+
+  try {
+    [places, labels, topHotels] = await Promise.all([
+      fetchPlacesLite(),
+      fetchLabelsLite(),
+      fetchTopHotels(),
+    ]);
+  } catch (err) {
+    console.error("homepage fetch failed:", err);
+  }
 
   return (
     <>

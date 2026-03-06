@@ -5,10 +5,17 @@ import MapSearchView from "@/app/ui/MapSearchView";
 import { fetchPlacesMap, fetchLabelsLite } from "@/app/lib/api";
 
 export default async function MapPage() {
-  const [placesAndMapCenters, labels] = await Promise.all([
-    fetchPlacesMap(),
-    fetchLabelsLite(),
-  ]);
+  let placesAndMapCenters = [];
+  let labels = [];
+
+  try {
+    [placesAndMapCenters, labels] = await Promise.all([
+      fetchPlacesMap(),
+      fetchLabelsLite(),
+    ]);
+  } catch (err) {
+    console.error("map page fetch failed", err);
+  }
 
   return (
     <>

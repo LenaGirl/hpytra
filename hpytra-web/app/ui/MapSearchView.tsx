@@ -13,6 +13,7 @@ import {
 } from "@vis.gl/react-google-maps";
 import HotelStats from "@/app/ui/HotelStats";
 import mapSearchViewStyles from "./mapSearchView.module.css";
+import { fetchHotelsMapByPlace } from "@/app/lib/api";
 
 export default function MapSearchView({ placesAndMapCenters, labels }) {
   /* 將 Places 依照 Parent Place 分組  */
@@ -61,31 +62,28 @@ export default function MapSearchView({ placesAndMapCenters, labels }) {
   useEffect(() => {
     if (!selectedPlace || selectedPlace.slug === defaultCenter.slug) return;
 
+    let cancelled = false;
+
     async function loadHotelsByPlace() {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/places/${selectedPlace.slug}/hotels/map/`,
-      );
+      try {
+        const hotels = await fetchHotelsMapByPlace(selectedPlace.slug);
 
-      if (!res.ok) {
-        console.error("loadHotelsForPlace error:", res.status);
-        setHotelsByPlace([]);
-        return;
+        if (!cancelled) {
+          setHotelsByPlace(hotels);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error("loadHotelsForPlace error:", err);
+          setHotelsByPlace([]);
+        }
       }
-
-      const data = await res.json();
-      const hotels = data.map((hotel) => ({
-        ...hotel,
-        coordinates_lat:
-          hotel.coordinates_lat !== null ? Number(hotel.coordinates_lat) : null,
-        coordinates_lng:
-          hotel.coordinates_lng !== null ? Number(hotel.coordinates_lng) : null,
-        google_rating:
-          hotel.google_rating !== null ? Number(hotel.google_rating) : null,
-      }));
-      setHotelsByPlace(hotels);
     }
 
     loadHotelsByPlace();
+
+    return () => {
+      cancelled = true;
+    };
   }, [selectedPlace, defaultCenter.slug]);
 
   const centerLat =
