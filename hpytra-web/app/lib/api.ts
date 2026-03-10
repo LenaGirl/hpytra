@@ -1,7 +1,7 @@
 import { apiFetch, apiFetchOr404 } from "./apiClient";
 
 /*---------- Type Definitions ----------*/
-type PlaceLite = {
+export type PlaceLite = {
   name: string;
   slug: string;
   parent_slug: string | null;
@@ -47,7 +47,7 @@ type PlaceDetail = {
   updated_at: string;
 };
 
-type LabelLite = {
+export type LabelLite = {
   name: string;
   slug: string;
   category: string | null;
@@ -135,6 +135,13 @@ type HotelMap = {
   photo_main: string | null;
 };
 
+export type PaginatedResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: HotelItem[];
+};
+
 /*---------- Place ----------*/
 export async function fetchPlacesLite(): Promise<PlaceLite[]> {
   return apiFetch<PlaceLite[]>("/api/places/");
@@ -199,14 +206,48 @@ export async function fetchTopHotels(): Promise<HotelItem[]> {
 
 export async function fetchHotelsByLabel(
   labelSlug: string,
-): Promise<HotelItem[]> {
-  return apiFetch<HotelItem[]>(`/api/labels/${labelSlug}/hotels/`);
+  page: number = 1,
+): Promise<PaginatedResponse> {
+  const params = new URLSearchParams();
+
+  if (page > 1) {
+    params.set("page", page.toString());
+  }
+
+  return apiFetch<PaginatedResponse>(
+    `/api/labels/${labelSlug}/hotels/?${params.toString()}`,
+  );
 }
 
 export async function fetchHotelsByPlaceTree(
   placeSlug: string,
+  labelSlugs: string[] = [],
+  mode: string = "or",
+  page: number = 1,
+): Promise<PaginatedResponse> {
+  const params = new URLSearchParams();
+
+  if (labelSlugs.length > 0) {
+    params.set("labels", labelSlugs.join(","));
+  }
+
+  if (mode !== "or") {
+    params.set("mode", mode);
+  }
+
+  if (page > 1) {
+    params.set("page", page.toString());
+  }
+
+  return apiFetch<PaginatedResponse>(
+    `/api/places/${placeSlug}/hotels/?${params.toString()}`,
+  );
+}
+
+export async function fetchHotelsByPlaceTreeAll(
+  placeSlug: string,
 ): Promise<HotelItem[]> {
-  return apiFetch<HotelItem[]>(`/api/places/${placeSlug}/hotels/`);
+  return apiFetch<HotelItem[]>(`/api/places/${placeSlug}/hotels/all/`);
 }
 
 export async function fetchHotelsMapByPlace(

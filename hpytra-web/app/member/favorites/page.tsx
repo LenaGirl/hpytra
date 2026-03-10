@@ -1,31 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getMyFavorites } from "@/app/lib/favorites";
-import HotelItem from "@/app/ui/HotelItem";
+import HotelList from "@/app/ui/HotelList";
 import { fetchPlacesLite, fetchLabelsLite } from "@/app/lib/api";
 
 export default function FavoritesPage() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(null);
   const [message, setMessage] = useState<string | null>(null);
   const [places, setPlaces] = useState([]);
   const [labels, setLabels] = useState([]);
 
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+
   useEffect(() => {
-    getMyFavorites()
+    getMyFavorites(page)
       .then((res) => {
         setData(res);
-        if (res.length === 0) {
+        if (res.count === 0) {
           setMessage("您還沒有收藏任何住宿，快去找找喜歡的地方吧！");
         }
       })
       .catch(() => {
         setMessage("目前無法載入收藏清單，請稍後再試一次。");
       });
-  }, []);
+  }, [page]);
 
   useEffect(() => {
-    if (data.length === 0) return;
+    if (!data || data.count === 0) return;
 
     Promise.all([fetchPlacesLite(), fetchLabelsLite()]).then(
       ([placesRes, labelsRes]) => {
@@ -33,29 +37,24 @@ export default function FavoritesPage() {
         setLabels(labelsRes);
       },
     );
-  }, [data.length]);
+  }, [data]);
 
   return (
     <>
-      <h1>收藏清單</h1>
-      <p>{message}</p>
-      {data.length > 0 && places.length > 0 && labels.length > 0 && (
-        <div className="grid-primary">
-          {data.map((hotel) => (
-            <HotelItem
-              key={hotel.slug}
-              hotel={hotel}
-              displayPlace={true}
-              places={places}
-              labels={labels}
-              isMember="true"
-              initialIsFavorited="true"
-              redirectPath="/member/favorites"
-              openInNewTab={true}
-            />
-          ))}
-        </div>
-      )}
+      <section id="hotel-list">
+        <h1>收藏清單</h1>
+        <p>{message}</p>
+        {data?.count > 0 && places.length > 0 && labels.length > 0 && (
+          <HotelList
+            hotels={data.results}
+            totalHotels={data.count}
+            displayPlace={true}
+            places={places}
+            labels={labels}
+            openInNewTab={true}
+          />
+        )}
+      </section>
     </>
   );
 }

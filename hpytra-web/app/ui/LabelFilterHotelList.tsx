@@ -1,31 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import HotelList from "@/app/ui/HotelList";
 import labelFilterHotelListStyles from "./labelFilterHotelList.module.css";
+import { fetchHotelsByPlaceTree } from "@/app/lib/api";
 
 export default function LabelFilterHotelList({
+  placeSlug,
   hotelsByPlace,
   labelsByPlace,
   places,
   labels,
 }) {
-  /* 篩選條件 States */
-  const [submittedLabels, setSubmittedLabels] = useState<string[]>([]);
-  const [submittedMode, setSubmittedMode] = useState<"or" | "and">("or");
+  /* 抓取 URL 參數 */
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const labelsParam = searchParams.get("labels");
+  const modeParam = searchParams.get("mode");
 
+  /* UI state (user 選擇的篩選條件暫存) */
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
-  const [selectedMode, setSelectedMode] = useState<"or" | "and">(submittedMode);
+  const [selectedMode, setSelectedMode] = useState<"or" | "and">("or");
 
-  /* 篩選 Hotels */
-  const filteredHotels = hotelsByPlace.filter((hotel) => {
-    if (submittedLabels.length === 0) return true;
-    if (submittedMode === "or") {
-      return submittedLabels.some((label) => hotel.labels.includes(label));
-    } else {
-      return submittedLabels.every((label) => hotel.labels.includes(label));
+  /* 篩選後的 Hotels */
+  const [filteredHotels, setFilteredHotels] = useState(hotelsByPlace.results);
+  const [totalHotels, setTotalHotels] = useState(hotelsByPlace.count);
+
+  /* URL改變 -> 同步 UI state、fetch hotels */
+  useEffect(() => {
+    const filteredLabels = labelsParam ? labelsParam.split(",") : [];
+    const mode = modeParam === "and" ? "and" : "or";
+
+    /* 同步 UI state */
+    setSelectedLabels(filteredLabels);
+    setSelectedMode(mode);
+
+    /* fetch hotels */
+    async function loadFilteredHotels() {
+      const data = await fetchHotelsByPlaceTree(
+        placeSlug,
+        filteredLabels,
+        mode,
+      );
+
+      setFilteredHotels(data.results);
+      setTotalHotels(data.count);
     }
-  });
+
+    loadFilteredHotels();
+  }, [labelsParam, modeParam, placeSlug]);
 
   /* 勾選/取消 Label */
   const handleLabelsChange = (checkboxLabel) => {
@@ -42,14 +66,26 @@ export default function LabelFilterHotelList({
   const handleReset = () => {
     setSelectedMode("or");
     setSelectedLabels([]);
-    setSubmittedLabels([]);
+
+    router.push(`/hotel_place/${placeSlug}#hotel-list`);
   };
 
   /* 點擊「搜尋」按鈕 */
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSubmittedMode(selectedMode);
-    setSubmittedLabels(selectedLabels);
+
+    const filteredlabels =
+      selectedLabels.length > 0 ? selectedLabels.join(",") : undefined;
+
+    /* 建立 URL 參數 */
+    const params = new URLSearchParams();
+    if (filteredlabels) params.set("labels", filteredlabels);
+    if (selectedMode !== "or") params.set("mode", selectedMode);
+    const queryString = params.toString();
+
+    router.push(
+      `/hotel_place/${placeSlug}${queryString ? `?${queryString}` : ""}#hotel-list`,
+    );
   };
 
   return (
@@ -123,7 +159,12 @@ export default function LabelFilterHotelList({
       </form>
 
       {/* Render 篩選後的 Hotel List */}
-      <HotelList hotels={filteredHotels} places={places} labels={labels} />
+      <HotelList
+        hotels={filteredHotels}
+        totalHotels={totalHotels}
+        places={places}
+        labels={labels}
+      />
     </>
   );
 }

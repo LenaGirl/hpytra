@@ -1,8 +1,15 @@
 import { apiFetchAuth } from "@/app/lib/apiClient";
-import { HotelItem } from "@/app/lib/api";
+import { PaginatedResponse } from "@/app/lib/api";
 
-export async function getMyFavorites(): Promise<HotelItem[]> {
-  return apiFetchAuth("/api/favorites/");
+export async function getMyFavorites(
+  page: number = 1,
+): Promise<PaginatedResponse> {
+  const params = new URLSearchParams();
+
+  if (page > 1) {
+    params.set("page", page.toString());
+  }
+  return apiFetchAuth(`/api/favorites/?${params.toString()}`);
 }
 
 export async function getFavoriteStatusByHotels(

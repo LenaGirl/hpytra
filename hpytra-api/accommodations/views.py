@@ -10,6 +10,7 @@ from django.conf import settings
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from .models import Place, PlaceDetail, Label, Hotel
+from core.pagination import HotelPagination
 from .serializers import (
     PlacesLiteSerializer,
     PlaceDetailSerializer,
@@ -174,20 +175,6 @@ class LabelPageLatestUpdatedAtAPIView(APIView):
 
 
 @method_decorator(cache_page(settings.CACHE["NORMAL"]), name="dispatch")
-class HotelsByLabelAPIView(ListAPIView):
-    permission_classes = [AllowAny]
-    serializer_class = HotelItemSerializer
-
-    def get_queryset(self):
-        label_slug = self.kwargs["label_slug"]
-
-        return Hotel.objects.filter(
-            labels__contains=[label_slug],
-            is_active=True,
-        ).order_by("order_index")
-
-
-@method_decorator(cache_page(settings.CACHE["NORMAL"]), name="dispatch")
 class HotelDetailAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -268,7 +255,49 @@ class TopHotelsAPIView(ListAPIView):
 
 
 @method_decorator(cache_page(settings.CACHE["NORMAL"]), name="dispatch")
+class HotelsByLabelAPIView(ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = HotelItemSerializer
+    pagination_class = HotelPagination  # 分頁
+
+    def get_queryset(self):
+        label_slug = self.kwargs["label_slug"]
+
+        return Hotel.objects.filter(
+            labels__contains=[label_slug],
+            is_active=True,
+        ).order_by("order_index")
+
+
+@method_decorator(cache_page(settings.CACHE["NORMAL"]), name="dispatch")
 class HotelsByPlaceTreeAPIView(ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = HotelItemSerializer
+    pagination_class = HotelPagination  # 分頁
+
+    # 取得 place (含子層級) 的 hotels，並依照篩選條件的 label_slugs 進行 AND 或 OR 過濾
+    def get_queryset(self):
+
+        place_slug = self.kwargs["place_slug"]
+
+        label_slugs = self.request.GET.get("labels")
+        mode = self.request.GET.get("mode", "or")
+
+        hotels = get_hotels_by_place_tree(place_slug).order_by("order_index")
+
+        if label_slugs:
+            filtered_labels = label_slugs.split(",")
+
+            if mode == "and":
+                hotels = hotels.filter(labels__contains=filtered_labels)
+            else:
+                hotels = hotels.filter(labels__overlap=filtered_labels)
+
+        return hotels
+
+
+@method_decorator(cache_page(settings.CACHE["NORMAL"]), name="dispatch")
+class HotelsByPlaceTreeAllAPIView(ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = HotelItemSerializer
 

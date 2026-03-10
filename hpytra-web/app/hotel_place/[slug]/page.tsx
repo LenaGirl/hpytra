@@ -12,6 +12,7 @@ import {
   fetchPlaceDetail,
   fetchPlacePageLatestUpdatedAt,
   fetchHotelsByPlaceTree,
+  fetchHotelsByPlaceTreeAll,
   fetchLabelsLite,
   fetchLabelsByPlace,
 } from "@/app/lib/api";
@@ -29,14 +30,22 @@ export default async function HotelPlacePage({
   const { slug } = await params;
 
   const currentPlaceDetails = await fetchPlaceDetail(slug); // 404 則 notFound
-  const [hotelsByPlace, labelsByPlace, labels, places, pageLatestUpdatedAt] =
-    await Promise.all([
-      fetchHotelsByPlaceTree(slug),
-      fetchLabelsByPlace(slug),
-      fetchLabelsLite(),
-      fetchPlacesLite(),
-      fetchPlacePageLatestUpdatedAt(slug),
-    ]);
+  const [
+    hotelsByPlace,
+    hotelsByPlaceAll,
+    labelsByPlace,
+    labels,
+    places,
+    pageLatestUpdatedAt,
+  ] = await Promise.all([
+    fetchHotelsByPlaceTree(slug),
+    fetchHotelsByPlaceTreeAll(slug),
+    fetchLabelsByPlace(slug),
+
+    fetchLabelsLite(),
+    fetchPlacesLite(),
+    fetchPlacePageLatestUpdatedAt(slug),
+  ]);
 
   const currentPlace = places.find((place) => place.slug === slug);
   const parentPlace =
@@ -110,7 +119,7 @@ export default async function HotelPlacePage({
             <div className="section-map-search">
               <h3 id="map-search" className="text-center">
                 <Link
-                  href={`/map?place=${currentPlace.slug}`}
+                  href={`/map?place=${slug}`}
                   target="_blank"
                   className="btn btn-primary"
                   prefetch={false}
@@ -122,6 +131,7 @@ export default async function HotelPlacePage({
 
             {/*進階篩選 + Hotel List */}
             <LabelFilterHotelList
+              placeSlug={slug}
               hotelsByPlace={hotelsByPlace}
               labelsByPlace={labelsByPlace}
               places={places}
@@ -135,7 +145,7 @@ export default async function HotelPlacePage({
             <div className={hotelPlaceStyles["place-featured-content"]}>
               <DisplayPlaceFeatured
                 currentPlace={currentPlace}
-                hotelsByPlace={hotelsByPlace}
+                hotelsByPlace={hotelsByPlaceAll}
                 labelsByPlace={labelsByPlace}
               />
             </div>
@@ -146,7 +156,7 @@ export default async function HotelPlacePage({
             <hr className="section-divider-style1" />
             <DisplayPlaceSummaryTable
               currentPlace={currentPlace}
-              hotelsByPlace={hotelsByPlace}
+              hotelsByPlace={hotelsByPlaceAll}
               labelsByPlace={labelsByPlace}
             />
           </section>
@@ -256,7 +266,7 @@ export default async function HotelPlacePage({
                       "@type": "ListItem",
                       position: 4,
                       name: currentPlace.name,
-                      item: `https://hyptra.com/hotel_place/${currentPlace.slug}`,
+                      item: `https://hyptra.com/hotel_place/${slug}`,
                     },
                   ]
                 : [
@@ -264,7 +274,7 @@ export default async function HotelPlacePage({
                       "@type": "ListItem",
                       position: 3,
                       name: currentPlace.name,
-                      item: `https://hyptra.com/hotel_place/${currentPlace.slug}`,
+                      item: `https://hyptra.com/hotel_place/${slug}`,
                     },
                   ]),
             ],

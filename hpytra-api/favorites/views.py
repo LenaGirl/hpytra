@@ -1,3 +1,4 @@
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -5,20 +6,20 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Favorite
 from accommodations.models import Hotel
 from accommodations.serializers import HotelItemSerializer
+from core.pagination import HotelPagination
 
 
-class FavoriteAPIView(APIView):
+class FavoriteAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = HotelItemSerializer
+    pagination_class = HotelPagination  # 分頁
 
-    def get(self, request):
-        user = request.user
+    def get_queryset(self):
+        user = self.request.user
 
-        favorites = user.favorites.select_related("hotel").order_by("-created_at")
-
-        hotels = [fav.hotel for fav in favorites]
-
-        serializer = HotelItemSerializer(hotels, many=True)
-        return Response(serializer.data)
+        return Hotel.objects.filter(favorites__user=user).order_by(
+            "-favorites__created_at"
+        )
 
 
 class FavoriteToggleAPIView(APIView):

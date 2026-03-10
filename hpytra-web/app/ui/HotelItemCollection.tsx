@@ -11,19 +11,16 @@ export default function HotelItemCollection({
   displayPlace,
   places,
   labels,
+  openInNewTab = false,
 }) {
   const { isAuthenticated } = useAuthStore();
   const [favoriteHotelSlugs, setFavoriteHotelSlugs] = useState<string[]>([]);
-  const fetchedRef = useRef(false);
 
   const hotelItemSlugs = hotels.map((hotel) => hotel.slug);
+  const hotelSlugKey = hotelItemSlugs.join(",");
 
   useEffect(() => {
     if (!isAuthenticated) return;
-
-    if (fetchedRef.current) return; // 防止重複呼叫
-
-    fetchedRef.current = true;
 
     const fetchFavorites = async () => {
       try {
@@ -35,7 +32,7 @@ export default function HotelItemCollection({
     };
 
     fetchFavorites();
-  }, [isAuthenticated, hotelItemSlugs]);
+  }, [isAuthenticated, hotelSlugKey]);
 
   /* 紀錄目前 URL */
   const pathname = usePathname();
@@ -55,6 +52,7 @@ export default function HotelItemCollection({
           isMember={isAuthenticated}
           initialIsFavorited={favoriteHotelSlugs.includes(hotel.slug)}
           redirectPath={redirectPath}
+          openInNewTab={openInNewTab}
         />
       ))}
     </>

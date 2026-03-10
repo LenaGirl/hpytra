@@ -69,10 +69,15 @@ export default async function HotelLabelPage({
             <hr className="section-divider-style1" />
             <p>{currentLabel.description}</p>
           </section>
-          <section>
+          <section id="hotel-list">
             <h2>★{currentLabel.name}住宿推薦清單</h2>
             <hr className="section-divider-style1" />
-            <HotelList hotels={hotelsByLabel} places={places} labels={labels} />
+            <HotelList
+              hotels={hotelsByLabel.results}
+              totalHotels={hotelsByLabel.count}
+              places={places}
+              labels={labels}
+            />
           </section>
           <section>
             <h2>★【優惠】住宿・景點門票・套票・交通</h2>
