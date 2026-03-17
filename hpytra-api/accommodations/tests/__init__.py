@@ -1,0 +1,1 @@
+# accommodations tests package

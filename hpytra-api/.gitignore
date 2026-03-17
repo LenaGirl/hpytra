@@ -13,7 +13,9 @@ __pycache__/
 
 # env files
 .env
-.env*.local
+.env.*
+!.env.example
+!.env.test.example
 
 # django
 *.log

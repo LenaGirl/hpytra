@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.exceptions import AuthenticationFailed
 from .serializers import RegisterSerializer, LoginSerializer, ChangePasswordSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import update_last_login
@@ -122,10 +123,7 @@ class RefreshView(APIView):
         refresh_token = request.COOKIES.get("hpytra_refresh")
 
         if not refresh_token:
-            return Response(
-                {"detail": "No refresh token"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+            raise AuthenticationFailed("No refresh token")
 
         try:
             refresh_token_obj = RefreshToken(refresh_token)
@@ -134,10 +132,7 @@ class RefreshView(APIView):
             user_id = refresh_token_obj["user_id"]
             user = User.objects.get(id=user_id)
         except TokenError:
-            return Response(
-                {"detail": "Invalid refresh token"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+            raise AuthenticationFailed("Invalid refresh token")
 
         res = Response(
             {
