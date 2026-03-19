@@ -10,8 +10,30 @@ export type ApiResponse<T> = {
   };
 };
 
+// 依執行環境選擇 API base URL：server-side 優先走 Docker 內部位址，browser 端走公開網址
+function getApiBaseUrl(): string {
+  if (typeof window === "undefined") {
+    return (
+      process.env.INTERNAL_API_BASE_URL ||
+      process.env.NEXT_PUBLIC_API_BASE_URL ||
+      ""
+    );
+  }
+
+  return process.env.NEXT_PUBLIC_API_BASE_URL || "";
+}
+
+// 設定 fetch 選項：server-side 關閉快取，避免 Next.js 在 build 階段預先寫入空的 API 結果
+function getFetchOptions(): RequestInit {
+  if (typeof window === "undefined") {
+    return { cache: "no-store" };
+  }
+
+  return {};
+}
+
 export async function apiFetch<T>(url: string): Promise<T> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`);
+  const res = await fetch(`${getApiBaseUrl()}${url}`, getFetchOptions());
 
   if (!res.ok) {
     throw new Error(`HTTP error: ${res.status}`);
@@ -30,7 +52,8 @@ export async function apiFetchAuth<T>(
   url: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
+  const res = await fetch(`${getApiBaseUrl()}${url}`, {
+    ...getFetchOptions(),
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
@@ -60,7 +83,7 @@ export async function apiFetchAuth<T>(
 }
 
 export async function apiFetchOr404<T>(url: string): Promise<T> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`);
+  const res = await fetch(`${getApiBaseUrl()}${url}`, getFetchOptions());
 
   if (res.status === 404) {
     notFound();
