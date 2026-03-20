@@ -16,6 +16,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# cookie setting
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "True").lower() == "true"
+COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "None")
+COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN") or None
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,7 +36,9 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-key")
 DEBUG = False
 
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(

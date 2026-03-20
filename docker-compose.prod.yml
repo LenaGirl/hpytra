@@ -1,16 +1,32 @@
 services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: hpytra-nginx
+    restart: unless-stopped
+    depends_on:
+      - web
+      - api
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/staticfiles:ro
+
   api:
     build:
       context: ./hpytra-api
       dockerfile: Dockerfile
     image: hpytra-api:${IMAGE_TAG}
     container_name: hpytra-api
+    restart: unless-stopped
     env_file:
       - ./hpytra-api/.env
     environment:
       PORT: 8000
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
+    volumes:
+      - static_volume:/app/staticfiles
 
   web:
     build:
@@ -23,9 +39,13 @@ services:
         NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
     image: hpytra-web:${IMAGE_TAG}
     container_name: hpytra-web
+    restart: unless-stopped
     depends_on:
       - api
     environment:
       INTERNAL_API_BASE_URL: http://api:8000
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
+
+volumes:
+  static_volume:

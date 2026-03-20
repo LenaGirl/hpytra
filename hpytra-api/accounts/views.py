@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,11 +15,13 @@ User = get_user_model()
 
 COOKIE_KWARGS = {
     "httponly": True,
-    "secure": True,
-    "samesite": "None",
+    "secure": settings.COOKIE_SECURE,
+    "samesite": settings.COOKIE_SAMESITE,
     "path": "/",
-    "domain": ".hpytra.com",
 }
+
+if settings.COOKIE_DOMAIN:
+    COOKIE_KWARGS["domain"] = settings.COOKIE_DOMAIN
 
 
 class MeView(APIView):
