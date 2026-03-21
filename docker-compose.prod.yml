@@ -20,7 +20,7 @@ services:
     container_name: hpytra-api
     restart: unless-stopped
     env_file:
-      - ./hpytra-api/.env
+      - /home/ubuntu/hpytra-secrets/hpytra-api.env.prod
     environment:
       PORT: 8000
     expose:
