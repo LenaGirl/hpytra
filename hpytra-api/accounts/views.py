@@ -15,8 +15,8 @@ User = get_user_model()
 
 COOKIE_KWARGS = {
     "httponly": True,
-    "secure": settings.COOKIE_SECURE,
-    "samesite": settings.COOKIE_SAMESITE,
+    "secure": True,
+    "samesite": "None",
     "path": "/",
 }
 
