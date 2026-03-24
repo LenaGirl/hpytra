@@ -111,10 +111,12 @@ class LogoutView(APIView):
         res.delete_cookie(
             key="hpytra_access",
             path="/",
+            domain=settings.COOKIE_DOMAIN,
         )
         res.delete_cookie(
             key="hpytra_refresh",
             path="/",
+            domain=settings.COOKIE_DOMAIN,
         )
         return res
 
