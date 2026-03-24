@@ -85,6 +85,7 @@ jobs:
           script: |
             set -e
             cd /home/ubuntu/hpytra
+            git pull
             # 讓 AWS 主機可以從 GHCR 拉取正式 image
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
             # 以同一個 IMAGE_TAG 拉取並啟動對應版本
