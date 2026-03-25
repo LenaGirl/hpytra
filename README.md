@@ -53,22 +53,22 @@ hpytra/
 
 ### 資料流
 
-- Client → Nginx → Frontend → Backend API → Database
+- Client → Reverse Proxy → Frontend → Backend API → Database
 
 ## 4. 架構演進
 
-### Phase 1：初版（快速開發）
+### Phase 1：初版
 
 - 以單一應用快速完成基本功能
 
 ### Phase 2：前後端分離 + PaaS
 
+- 重構為前後端分離架構
+- 重整 API 結構與資料查詢邏輯
 - 使用 PaaS 進行服務部署：
   - Frontend：Vercel
   - Backend：DigitalOcean App Platform
   - Database：Supabase
-- 重構為前後端分離架構
-- 重整 API 結構與資料查詢邏輯
 - 建立資料建置程式，負責資料抓取、清洗與圖片篩選
 - 導入 AI API 提升圖片篩選效率
 
