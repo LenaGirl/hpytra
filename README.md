@@ -117,36 +117,37 @@ hpytra/
 
 ### Backend API
 
-- 採用前後端分離架構設計
-- 設計 RESTful API 並統一回傳格式
-- 建立全域例外處理與錯誤回應機制
-- 實作 JWT + HttpOnly Cookie 認證機制
-- 整合 Cloudflare Turnstile 後端驗證
-- 實作分頁查詢機制
-- 建立單元測試與整合測試
+- 採用前後端分離架構
+- 以 RESTful API 為核心，依資源導向（Place / Hotel / Label）設計系統
+- 建立統一 API 回傳格式與全域錯誤處理機制，提升系統一致性與可維護性
+- 使用 serializer（類似 DTO）控制回傳資料結構，依不同使用情境設計對應格式，避免 over-fetching
+- 將查詢邏輯下推至資料庫層處理，透過 only()、annotate、aggregate 提升查詢效能與擴展性
+- 支援透過 query parameters 動態篩選資料，並提供 AND / OR 條件組合查詢
+- 實作 JWT + HttpOnly Cookie 驗證機制，降低 XSS 風險
+- 整合 Cloudflare Turnstile 進行後端驗證，防止自動化攻擊
+- 撰寫單元測試與整合測試，確保核心功能正確性
 
 ### Data Pipeline
 
 - 建立住宿資料 data pipeline（抓取 → 清洗 → AI 篩選圖片 → 人工審核 → 入庫）
-- 使用 asyncio 建立非同步資料處理流程
-- 整合 Google API 與 AI API 進行資料處理
+- 使用 asyncio 建立非同步資料處理流程，提升資料處理效率
+- 整合 Google API 與 AI API 進行資料處理與圖片篩選
 
 ### DevOps
 
 - 使用 Docker 進行服務容器化（Frontend / Backend / Reverse Proxy）
-- 使用 Docker Compose 管理多服務架構
-- 部署於 AWS EC2
-- 建立 GitHub Actions CI/CD 自動部署流程
-- 使用 Nginx 作為 Reverse Proxy
+- 透過 Docker Compose 管理多服務架構，簡化開發與部署流程
+- 部署於 AWS EC2，提供穩定的服務運行環境
+- 建立 GitHub Actions CI/CD 流程，自動化部署
+- 使用 Nginx 作為 Reverse Proxy，統一流量入口並進行請求轉發
 
 ## 8. 專案亮點
 
 - 將單一應用重構為前後端分離架構，提升系統可維護性與擴展性
-- 從 PaaS 架構升級至 Docker + AWS 部署，並建立 CI/CD 自動部署流程
-- 針對住宿搜尋與資料查詢進行效能優化，提升 API 回應效率
-- 建立半自動化住宿資料 data pipeline（整合外部 API 與人工審核），降低人工資料整理成本
-- 使用 asyncio 建立非同步資料處理流程，提升資料抓取與處理效率
-- 將 AI API 整合至資料建置流程，提升圖片篩選效率
+- 導入 Docker + AWS 部署與 CI/CD 流程，建立自動化部署機制，降低人工操作成本
+- 針對住宿搜尋與篩選查詢進行優化，透過資料庫查詢優化與動態篩選設計提升查詢效能
+- 建立獨立 data pipeline（整合外部 API、AI 與人工審核），並導入非同步處理（asyncio），提升資料建置效率與品質
+- 將 AI API 整合至資料處理流程，提升圖片篩選效率並降低人工處理成本
 
 ## 9. 未來優化方向
 
