@@ -226,7 +226,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const currentHotel = await fetchHotelDetail(slug.toLowerCase());
+  const lowerSlug = slug.toLowerCase();
+  const currentHotel = await fetchHotelDetail(lowerSlug);
 
   const [places, labels] = await Promise.all([
     fetchPlacesLite(),
@@ -251,9 +252,14 @@ export async function generateMetadata({
     title: currentHotel.name,
     description: hotelDescription,
     keywords: [currentHotel.name, ...labelNames],
+    alternates: {
+      canonical: `/hotels/${lowerSlug}`,
+    },
+
     openGraph: {
       title: currentHotel.name,
       description: hotelDescription,
+      url: `/hotels/${lowerSlug}`,
       modifiedTime: new Date(currentHotel.updated_at).toISOString(),
     },
   };

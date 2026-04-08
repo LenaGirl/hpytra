@@ -120,7 +120,7 @@ hpytra/
 - 採用前後端分離架構
 - 以 RESTful API 為核心，依資源導向（Place / Hotel / Label）設計系統
 - 建立統一 API 回傳格式與全域錯誤處理機制，提升系統一致性與可維護性
-- 使用 serializer（類似 DTO）控制回傳資料結構，依不同使用情境設計對應格式，避免 over-fetching
+- 使用 serializer 控制回傳資料結構，依不同使用情境設計對應格式，避免 over-fetching
 - 將查詢邏輯下推至資料庫層處理，透過 only()、annotate、aggregate 提升查詢效能與擴展性
 - 支援透過 query parameters 動態篩選資料，並提供 AND / OR 條件組合查詢
 - 實作 JWT + HttpOnly Cookie 驗證機制，降低 XSS 風險

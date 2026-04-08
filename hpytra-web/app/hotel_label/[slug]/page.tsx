@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import HotelList from "@/app/ui/HotelList";
 import DisplayKkdayClient from "@/app/ui/DisplayKkdayClient";
 import {
@@ -17,6 +18,10 @@ export default async function HotelLabelPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  if (slug !== slug.toLowerCase()) {
+    redirect(`/hotel_label/${slug.toLowerCase()}`);
+  }
 
   const currentLabel = await fetchLabelDetail(slug); // 404 則 notFound
   const [hotelsByLabel, labels, places, pageLatestUpdatedAt] =
@@ -138,9 +143,13 @@ export async function generateMetadata({
     title: `【${currentYear}${currentLabel.name}】住宿推薦`,
     description: currentLabel.description,
     keywords: [`${currentLabel.name}住宿`, `${currentLabel.name}住宿推薦`],
+    alternates: {
+      canonical: `/hotel_label/${slug}`,
+    },
     openGraph: {
       title: `【${currentYear}${currentLabel.name}】住宿推薦`,
       description: currentLabel.description,
+      url: `/hotel_label/${slug}`,
       modifiedTime: new Date(pageLatestUpdatedAt).toISOString(),
     },
   };

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Fragment } from "react";
 import hotelPlaceStyles from "./hotel-place.module.css";
 import { getGroupedLabels } from "@/app/lib/getGroupedLabels";
@@ -28,6 +29,10 @@ export default async function HotelPlacePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  if (slug !== slug.toLowerCase()) {
+    redirect(`/hotel_place/${slug.toLowerCase()}`);
+  }
 
   const currentPlaceDetails = await fetchPlaceDetail(slug); // 404 則 notFound
   const [
@@ -578,10 +583,14 @@ export async function generateMetadata({
     title: currentPlaceDetails.title,
     description: currentPlaceDetails.seo_description,
     keywords: currentPlaceDetails.seo_keywords,
+    alternates: {
+      canonical: `/hotel_place/${slug}`,
+    },
 
     openGraph: {
       title: currentPlaceDetails.title,
       description: currentPlaceDetails.seo_description,
+      url: `/hotel_place/${slug}`,
       images: [
         {
           url: `/banner/banner-${slug}.jpg`,
