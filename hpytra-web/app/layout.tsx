@@ -25,7 +25,6 @@ export default async function RootLayout({
                 alt="幸福旅行站"
                 width={136}
                 height={41}
-                priority
               />
             </Link>
             <HeaderMenu places={places} />

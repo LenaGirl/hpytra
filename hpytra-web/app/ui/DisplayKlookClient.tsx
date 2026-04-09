@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 
 const DisplayKlook = dynamic(() => import("@/app/ui/DisplayKlook"), {
   ssr: false,
@@ -8,5 +9,15 @@ const DisplayKlook = dynamic(() => import("@/app/ui/DisplayKlook"), {
 });
 
 export default function DisplayKlookClient({ placeSlug, pageSlug }) {
-  return <DisplayKlook placeSlug={placeSlug} pageSlug={pageSlug} />;
+  const [shouldLoad, setShouldLoad] = useState(false);
+
+  /* 延遲兩秒再載入 */
+  useEffect(() => {
+    const timer = setTimeout(() => setShouldLoad(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return shouldLoad ? (
+    <DisplayKlook placeSlug={placeSlug} pageSlug={pageSlug} />
+  ) : null;
 }

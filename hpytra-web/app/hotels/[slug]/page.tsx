@@ -29,13 +29,9 @@ export default async function HotelsPage({
     redirect(`/hotels/${lowerSlug}`);
   }
 
-  const currentHotel = await fetchHotelDetail(lowerSlug); // 404 則 notFound
+  const { currentHotel, places, labels } = await getHotelMetaData(lowerSlug);
 
-  const [places, labels, nearbyHotels] = await Promise.all([
-    fetchPlacesLite(),
-    fetchLabelsLite(),
-    fetchNearbyHotels(lowerSlug),
-  ]);
+  const nearbyHotels = await fetchNearbyHotels(lowerSlug);
 
   const currentPlace = places.find(
     (place) => place.slug === currentHotel.place,
@@ -187,6 +183,21 @@ export default async function HotelsPage({
   );
 }
 
+/* 抓取共用資料 */
+async function getHotelMetaData(slug: string) {
+  const [currentHotel, places, labels] = await Promise.all([
+    fetchHotelDetail(slug),
+    fetchPlacesLite(),
+    fetchLabelsLite(),
+  ]);
+
+  return {
+    currentHotel,
+    places,
+    labels,
+  };
+}
+
 /*----- Render 目錄 -----*/
 function DisplayHotelToc({ currentHotel }) {
   return (
@@ -227,12 +238,9 @@ export async function generateMetadata({
   const { slug } = await params;
 
   const lowerSlug = slug.toLowerCase();
-  const currentHotel = await fetchHotelDetail(lowerSlug);
 
-  const [places, labels] = await Promise.all([
-    fetchPlacesLite(),
-    fetchLabelsLite(),
-  ]);
+  const { currentHotel, places, labels } = await getHotelMetaData(lowerSlug);
+
   const currentPlace = places.find(
     (place) => place.slug === currentHotel.place,
   );
