@@ -157,11 +157,13 @@ export default async function HotelPlacePage({
             />
           </section>
 
+          {/*}
           <section id="place-discounts">
             <h2>★【優惠】住宿・景點門票・套票・交通</h2>
             <hr className="section-divider-style1" />
             <DisplayKkdayClient placeSlug={slug} pageSlug={slug} />
           </section>
+          */}
 
           <section id="nearby-places">
             <h2>★ 附近景點住宿推薦</h2>
