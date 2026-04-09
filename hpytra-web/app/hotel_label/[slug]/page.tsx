@@ -23,14 +23,14 @@ export default async function HotelLabelPage({
     redirect(`/hotel_label/${slug.toLowerCase()}`);
   }
 
-  const currentLabel = await fetchLabelDetail(slug); // 404 則 notFound
-  const [hotelsByLabel, labels, places, pageLatestUpdatedAt] =
-    await Promise.all([
-      fetchHotelsByLabel(slug),
-      fetchLabelsLite(),
-      fetchPlacesLite(),
-      fetchLabelPageLatestUpdatedAt(slug),
-    ]);
+  const { currentLabel, pageLatestUpdatedAt } =
+    await getHotelLabelMetaData(slug);
+
+  const [hotelsByLabel, labels, places] = await Promise.all([
+    fetchHotelsByLabel(slug),
+    fetchLabelsLite(),
+    fetchPlacesLite(),
+  ]);
 
   const currentYear = new Date().getFullYear();
 
@@ -126,6 +126,17 @@ export default async function HotelLabelPage({
   );
 }
 
+/* 抓取共用資料 */
+async function getHotelLabelMetaData(slug: string) {
+  const currentLabel = await fetchLabelDetail(slug);
+  const pageLatestUpdatedAt = await fetchLabelPageLatestUpdatedAt(slug);
+
+  return {
+    currentLabel,
+    pageLatestUpdatedAt,
+  };
+}
+
 /*----- Metadata -----*/
 export async function generateMetadata({
   params,
@@ -134,8 +145,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const currentLabel = await fetchLabelDetail(slug);
-  const pageLatestUpdatedAt = await fetchLabelPageLatestUpdatedAt(slug);
+  const { currentLabel, pageLatestUpdatedAt } =
+    await getHotelLabelMetaData(slug);
 
   const currentYear = new Date().getFullYear();
 

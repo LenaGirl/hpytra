@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import "@/app/global.css";
+import "./global.css";
 import BackToTop from "@/app/ui/BackToTop";
 import HeaderMenu from "@/app/ui/HeaderMenu";
 import { AuthProvider } from "@/app/providers/AuthProvider";
@@ -12,13 +12,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let places = [];
-
-  try {
-    places = await fetchPlacesLite();
-  } catch (err) {
-    console.error("places fetch failed", err);
-  }
+  const places = await fetchPlacesLite();
 
   return (
     <html lang="zh-tw">

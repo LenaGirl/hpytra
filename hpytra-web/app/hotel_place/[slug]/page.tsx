@@ -13,8 +13,7 @@ import {
   fetchPlaceDetail,
   fetchPlacePageLatestUpdatedAt,
   fetchHotelsByPlaceTree,
-  fetchHotelsByPlaceTreeAll,
-  fetchLabelsLite,
+  fetchHotelsByPlaceTreeHighlights,
   fetchLabelsByPlace,
 } from "@/app/lib/api";
 
@@ -34,23 +33,16 @@ export default async function HotelPlacePage({
     redirect(`/hotel_place/${slug.toLowerCase()}`);
   }
 
-  const currentPlaceDetails = await fetchPlaceDetail(slug); // 404 則 notFound
-  const [
-    hotelsByPlace,
-    hotelsByPlaceAll,
-    labelsByPlace,
-    labels,
-    places,
-    pageLatestUpdatedAt,
-  ] = await Promise.all([
-    fetchHotelsByPlaceTree(slug),
-    fetchHotelsByPlaceTreeAll(slug),
-    fetchLabelsByPlace(slug),
+  const { currentPlaceDetails, pageLatestUpdatedAt } =
+    await getHotelPlaceMetaData(slug);
 
-    fetchLabelsLite(),
-    fetchPlacesLite(),
-    fetchPlacePageLatestUpdatedAt(slug),
-  ]);
+  const [hotelsByPlace, hotelsByPlaceAll, labelsByPlace, places] =
+    await Promise.all([
+      fetchHotelsByPlaceTree(slug),
+      fetchHotelsByPlaceTreeHighlights(slug),
+      fetchLabelsByPlace(slug),
+      fetchPlacesLite(),
+    ]);
 
   const currentPlace = places.find((place) => place.slug === slug);
   const parentPlace =
@@ -140,7 +132,6 @@ export default async function HotelPlacePage({
               hotelsByPlace={hotelsByPlace}
               labelsByPlace={labelsByPlace}
               places={places}
-              labels={labels}
             />
           </section>
 
@@ -311,6 +302,17 @@ export default async function HotelPlacePage({
       />
     </>
   );
+}
+
+/* 抓取共用資料 */
+async function getHotelPlaceMetaData(slug: string) {
+  const currentPlaceDetails = await fetchPlaceDetail(slug);
+  const pageLatestUpdatedAt = await fetchPlacePageLatestUpdatedAt(slug);
+
+  return {
+    currentPlaceDetails,
+    pageLatestUpdatedAt,
+  };
 }
 
 /*----- Render 文章內容 -----*/
@@ -572,8 +574,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const currentPlaceDetails = await fetchPlaceDetail(slug);
-  const pageLatestUpdatedAt = await fetchPlacePageLatestUpdatedAt(slug);
+  const { currentPlaceDetails, pageLatestUpdatedAt } =
+    await getHotelPlaceMetaData(slug);
 
   if (!currentPlaceDetails) {
     return;

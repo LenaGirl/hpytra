@@ -109,7 +109,17 @@ class HotelItemSerializer(serializers.ModelSerializer):
             "photo_main",
             "photos",
             "real_1",
-            "updated_at",
+        ]
+
+
+class HotelPlaceHighlightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hotel
+        fields = [
+            "name",
+            "slug",
+            "labels",
+            "price_quad_room",
         ]
 
 

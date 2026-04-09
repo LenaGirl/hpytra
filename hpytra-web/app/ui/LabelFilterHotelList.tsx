@@ -11,7 +11,6 @@ export default function LabelFilterHotelList({
   hotelsByPlace,
   labelsByPlace,
   places,
-  labels,
 }) {
   /* 抓取 URL 參數 */
   const router = useRouter();
@@ -163,7 +162,7 @@ export default function LabelFilterHotelList({
         hotels={filteredHotels}
         totalHotels={totalHotels}
         places={places}
-        labels={labels}
+        labels={labelsByPlace}
       />
     </>
   );

@@ -112,6 +112,13 @@ export type HotelItem = {
   real_1: string | null;
 };
 
+type HotelPlaceHighlight = {
+  name: string;
+  slug: string;
+  labels: string[] | null;
+  price_quad_room: number | null;
+};
+
 type HotelsLatestUpdatedAt = {
   slug: string;
   updated_at: string;
@@ -244,10 +251,12 @@ export async function fetchHotelsByPlaceTree(
   );
 }
 
-export async function fetchHotelsByPlaceTreeAll(
+export async function fetchHotelsByPlaceTreeHighlights(
   placeSlug: string,
-): Promise<HotelItem[]> {
-  return apiFetch<HotelItem[]>(`/api/places/${placeSlug}/hotels/all/`);
+): Promise<HotelPlaceHighlight[]> {
+  return apiFetch<HotelPlaceHighlight[]>(
+    `/api/places/${placeSlug}/hotels/highlights/`,
+  );
 }
 
 export async function fetchHotelsMapByPlace(

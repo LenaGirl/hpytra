@@ -13,7 +13,7 @@ from .views import (
     HotelDetailAPIView,
     NearbyHotelsAPIView,
     HotelsByPlaceTreeAPIView,
-    HotelsByPlaceTreeAllAPIView,
+    HotelPlaceHighlightsAPIView,
     HotelsByPlaceTreeMapAPIView,
     HotelsLatestUpdatedAtAPIView,
 )
@@ -25,7 +25,10 @@ urlpatterns = [
     path("places/<slug:slug>/", PlaceDetailAPIView.as_view()),
     path("places/<slug:place_slug>/labels/", LabelsByPlaceTreeAPIView.as_view()),
     path("places/<slug:place_slug>/hotels/", HotelsByPlaceTreeAPIView.as_view()),
-    path("places/<slug:place_slug>/hotels/all/", HotelsByPlaceTreeAllAPIView.as_view()),
+    path(
+        "places/<slug:place_slug>/hotels/highlights/",
+        HotelPlaceHighlightsAPIView.as_view(),
+    ),
     path(
         "places/<slug:place_slug>/hotels/map/",
         HotelsByPlaceTreeMapAPIView.as_view(),

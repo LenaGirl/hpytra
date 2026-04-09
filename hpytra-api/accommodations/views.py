@@ -20,6 +20,7 @@ from .serializers import (
     LabelsByPlaceSerializer,
     HotelDetailSerializer,
     HotelItemSerializer,
+    HotelPlaceHighlightSerializer,
     HotelsMapSerializer,
     HotelsLatestUpdatedAtSerializer,
     LatestUpdatedAtSerializer,
@@ -297,9 +298,9 @@ class HotelsByPlaceTreeAPIView(ListAPIView):
 
 
 @method_decorator(cache_page(settings.CACHE["NORMAL"]), name="dispatch")
-class HotelsByPlaceTreeAllAPIView(ListAPIView):
+class HotelPlaceHighlightsAPIView(ListAPIView):
     permission_classes = [AllowAny]
-    serializer_class = HotelItemSerializer
+    serializer_class = HotelPlaceHighlightSerializer
 
     # 取得 place (含子層級) 的 hotels
     def get_queryset(self):
