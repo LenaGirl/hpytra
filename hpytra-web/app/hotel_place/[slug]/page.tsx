@@ -12,7 +12,6 @@ import {
   fetchPlacesLite,
   fetchPlaceDetail,
   fetchPlacePageLatestUpdatedAt,
-  fetchHotelsByPlaceTree,
   fetchHotelsByPlaceTreeHighlights,
   fetchLabelsByPlace,
 } from "@/app/lib/api";
@@ -36,13 +35,11 @@ export default async function HotelPlacePage({
   const { currentPlaceDetails, pageLatestUpdatedAt } =
     await getHotelPlaceMetaData(slug);
 
-  const [hotelsByPlace, hotelsByPlaceAll, labelsByPlace, places] =
-    await Promise.all([
-      fetchHotelsByPlaceTree(slug),
-      fetchHotelsByPlaceTreeHighlights(slug),
-      fetchLabelsByPlace(slug),
-      fetchPlacesLite(),
-    ]);
+  const [hotelsByPlaceAll, labelsByPlace, places] = await Promise.all([
+    fetchHotelsByPlaceTreeHighlights(slug),
+    fetchLabelsByPlace(slug),
+    fetchPlacesLite(),
+  ]);
 
   const currentPlace = places.find((place) => place.slug === slug);
   const parentPlace =
@@ -129,7 +126,6 @@ export default async function HotelPlacePage({
             {/*進階篩選 + Hotel List */}
             <LabelFilterHotelList
               placeSlug={slug}
-              hotelsByPlace={hotelsByPlace}
               labelsByPlace={labelsByPlace}
               places={places}
             />
@@ -157,13 +153,11 @@ export default async function HotelPlacePage({
             />
           </section>
 
-          {/*}
           <section id="place-discounts">
             <h2>★【優惠】住宿・景點門票・套票・交通</h2>
             <hr className="section-divider-style1" />
             <DisplayKkdayClient placeSlug={slug} pageSlug={slug} />
           </section>
-          */}
 
           <section id="nearby-places">
             <h2>★ 附近景點住宿推薦</h2>

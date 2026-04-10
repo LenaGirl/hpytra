@@ -48,7 +48,18 @@ class PlaceDetailAPIView(RetrieveAPIView):
     lookup_url_kwarg = "slug"
 
     def get_queryset(self):
-        return PlaceDetail.objects.filter(is_active=True)
+        return (
+            PlaceDetail.objects.filter(is_active=True)
+            .select_related("place")
+            .only(
+                "place",
+                "title",
+                "content",
+                "seo_description",
+                "seo_keywords",
+                "updated_at",
+            )
+        )
 
 
 @method_decorator(cache_page(settings.CACHE["LONG"]), name="dispatch")
@@ -127,7 +138,7 @@ class LabelsByPlaceTreeAPIView(APIView):
 
     def get(self, request, place_slug):
         # 取得 place tree 下的 hotels
-        hotels = get_hotels_by_place_tree(place_slug)
+        hotels = get_hotels_by_place_tree(place_slug).only("labels")
 
         # 從 hotels 收集所有 label slugs: 展平 -> 取欄位資料 -> 去重
         label_slugs = list(
@@ -284,7 +295,36 @@ class HotelsByPlaceTreeAPIView(ListAPIView):
         label_slugs = self.request.GET.get("labels")
         mode = self.request.GET.get("mode", "or")
 
-        hotels = get_hotels_by_place_tree(place_slug).order_by("order_index")
+        hotels = (
+            get_hotels_by_place_tree(place_slug)
+            .only(
+                "name",
+                "slug",
+                "google_rating",
+                "place",
+                "labels",
+                "order_index",
+                "price_double_room",
+                "price_quad_room",
+                "agoda_slug",
+                "booking_slug",
+                "klook_slug",
+                "kkday_slug",
+                "photo_main",
+                "photo_1",
+                "photo_2",
+                "photo_3",
+                "photo_4",
+                "photo_5",
+                "photo_6",
+                "photo_7",
+                "photo_8",
+                "photo_9",
+                "photo_10",
+                "real_1",
+            )
+            .order_by("order_index")
+        )
 
         if label_slugs:
             filtered_labels = label_slugs.split(",")
@@ -305,7 +345,11 @@ class HotelPlaceHighlightsAPIView(ListAPIView):
     # 取得 place (含子層級) 的 hotels
     def get_queryset(self):
         place_slug = self.kwargs["place_slug"]
-        return get_hotels_by_place_tree(place_slug).order_by("order_index")
+        return (
+            get_hotels_by_place_tree(place_slug)
+            .only("name", "slug", "labels", "price_quad_room", "order_index")
+            .order_by("order_index")
+        )
 
 
 @method_decorator(cache_page(settings.CACHE["NORMAL"]), name="dispatch")
