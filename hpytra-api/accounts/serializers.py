@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.db.models import Q
@@ -7,6 +8,24 @@ User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="帳號已被註冊",
+            )
+        ],
+    )
+
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="Email已被註冊",
+            )
+        ],
+    )
+
     password = serializers.CharField(
         write_only=True,
         min_length=8,
@@ -23,16 +42,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         if data["password"] != data["password2"]:
             raise serializers.ValidationError({"password2": "兩次輸入的密碼不一致"})
         return data
-
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("帳號已被註冊")
-        return value
-
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Email已被註冊")
-        return value
 
     def validate_password(self, value):
         validate_password(value)

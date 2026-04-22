@@ -2,13 +2,48 @@ import { notFound } from "next/navigation";
 
 export type ApiResponse<T> = {
   success: boolean;
-  data: T;
+  data: T | null;
   message: string | null;
-  error: { code: string; status: number } | null;
-  meta: {
-    timestamp: string;
-  };
+  error: {
+    code: string | null;
+    status: number;
+    details?: Record<string, string[] | string> | null;
+  } | null;
 };
+
+/* 將 API 錯誤回應包裝成前端可直接使用的 Error 物件 */
+function buildApiError(
+  status: number,
+  response?: {
+    message?: string | null;
+    error?: {
+      code?: string | null;
+      status?: number;
+      details?: unknown;
+    } | null;
+  } | null,
+) {
+  const error = new Error(response?.message ?? `HTTP error: ${status}`);
+  (error as any).status = response?.error?.status ?? status;
+  (error as any).code = response?.error?.code ?? null;
+  (error as any).details = response?.error?.details ?? null;
+  return error;
+}
+
+async function parseResponse<T>(res: Response): Promise<ApiResponse<T> | null> {
+  // API 可能回傳空 body（如 204），避免 res.json() 在空內容時拋錯，所以先讀取文字再解析
+  const text = await res.text();
+
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
 
 // 依執行環境選擇 API base URL：server-side 優先走 Docker 內部位址，browser 端走公開網址
 function getApiBaseUrl(): string {
@@ -35,14 +70,21 @@ function getFetchOptions(): RequestInit {
 export async function apiFetch<T>(url: string): Promise<T> {
   const res = await fetch(`${getApiBaseUrl()}${url}`, getFetchOptions());
 
+  const response = await parseResponse<T>(res);
+
+  // HTTP 回應狀態為錯誤
   if (!res.ok) {
+    throw buildApiError(res.status, response);
+  }
+
+  // 回應 body 為空，或沒有可用的 API JSON
+  if (!response) {
     throw new Error(`HTTP error: ${res.status}`);
   }
 
-  const response: ApiResponse<T> = await res.json();
-
+  // API 已回應，但業務結果為失敗
   if (!response.success) {
-    throw new Error(response.message ?? "API error");
+    throw buildApiError(res.status, response);
   }
 
   return response.data;
@@ -61,22 +103,18 @@ export async function apiFetchAuth<T>(
     },
     ...options,
   });
+  const response = await parseResponse<T>(res);
 
   if (!res.ok) {
-    throw new Error(`HTTP error: ${res.status}`);
+    throw buildApiError(res.status, response);
   }
 
-  // API 可能回傳空 body（如 204），避免 res.json() 在空內容時拋錯，所以先讀取文字再解析
-  const text = await res.text();
-
-  if (!text) {
+  if (!response) {
     return null as T;
   }
 
-  const response: ApiResponse<T> = JSON.parse(text);
-
   if (!response.success) {
-    throw new Error(response.message ?? "API error");
+    throw buildApiError(res.status, response);
   }
 
   return response.data;
@@ -89,14 +127,18 @@ export async function apiFetchOr404<T>(url: string): Promise<T> {
     notFound();
   }
 
+  const response = await parseResponse<T>(res);
+
   if (!res.ok) {
+    throw buildApiError(res.status, response);
+  }
+
+  if (!response) {
     throw new Error(`HTTP error: ${res.status}`);
   }
 
-  const response: ApiResponse<T> = await res.json();
-
   if (!response.success) {
-    throw new Error(response.message ?? "API error");
+    throw buildApiError(res.status, response);
   }
 
   return response.data;

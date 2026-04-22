@@ -17,8 +17,10 @@ class FavoriteAPIView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        return Hotel.objects.filter(favorites__user=user).order_by(
-            "-favorites__created_at"
+        return (
+            Hotel.objects.filter(favorites__user=user)
+            .select_related("place")
+            .order_by("-favorites__created_at")
         )
 
 

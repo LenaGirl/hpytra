@@ -13,13 +13,14 @@ class StandardJSONRenderer(JSONRenderer):
         if response and response.status_code >= 400:
             return super().render(data, accepted_media_type, renderer_context)
 
+        # No Content 不回傳 body
+        if response and response.status_code == 204:
+            return b""
+
         # success: 統一格式輸出
         return super().render(
             {
                 "success": True,
                 "data": data,
-                "message": None,
-                "error": None,
-                "meta": {"timestamp": timezone.now().isoformat()},
             }
         )

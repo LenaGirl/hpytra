@@ -11,24 +11,32 @@ def custom_exception_handler(exc, context):
 
     code = None
     message = None
+    details = None
 
     if isinstance(response.data, dict):
         detail = response.data.get("detail")
 
-        if hasattr(detail, "code"):
-            code = detail.code
-            message = detail
+        if detail is not None:
+            if hasattr(detail, "code"):
+                code = detail.code
+            message = str(detail)
+            details = None
         else:
-            message = detail or response.data
+            code = "validation_error"
+            message = "Validation failed."
+            details = response.data
     else:
-        message = response.data
+        message = str(response.data)
+        details = None
 
     response.data = {
         "success": False,
-        "data": None,
         "message": message,
-        "error": {"code": code, "status": response.status_code},
-        "meta": {"timestamp": timezone.now().isoformat()},
+        "error": {
+            "code": code,
+            "status": response.status_code,
+            "details": details,
+        },
     }
 
     return response

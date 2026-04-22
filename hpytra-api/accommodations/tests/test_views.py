@@ -119,7 +119,6 @@ class TestHotelDetailAPIView:
 
         assert response.status_code == 404
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 404
 
 

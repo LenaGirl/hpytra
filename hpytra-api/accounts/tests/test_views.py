@@ -50,7 +50,6 @@ class TestMeView:
 
         assert response.status_code == 401
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 401
 
 
@@ -98,7 +97,6 @@ class TestRegisterView:
 
         assert response.status_code == 400
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 400
 
         mock_require_turnstile.assert_called_once()
@@ -121,7 +119,6 @@ class TestRegisterView:
 
         assert response.status_code == 400
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 400
 
         mock_require_turnstile.assert_called_once()
@@ -170,7 +167,6 @@ class TestLoginView:
 
         assert response.status_code == 400
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 400
 
         mock_require_turnstile.assert_called_once()
@@ -191,7 +187,6 @@ class TestLoginView:
 
         assert response.status_code == 400
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 400
 
         mock_require_turnstile.assert_called_once()
@@ -217,7 +212,6 @@ class TestRefreshView:
 
         assert response.status_code == 401
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["message"] == "No refresh token"
         assert payload["error"]["status"] == 401
 
@@ -229,7 +223,6 @@ class TestRefreshView:
 
         assert response.status_code == 401
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["message"] == "Invalid refresh token"
         assert payload["error"]["status"] == 401
 
@@ -283,7 +276,6 @@ class TestChangePasswordView:
 
         assert response.status_code == 400
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 400
 
     def test_returns_401_for_unauthenticated_request(self, api_client):
@@ -299,5 +291,4 @@ class TestChangePasswordView:
 
         assert response.status_code == 401
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 401

@@ -7,7 +7,7 @@ export default function SecurityPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); // 阻止瀏覽器預設送出
 
     setMessage(null);
@@ -45,11 +45,13 @@ export default function SecurityPage() {
       setMessage("密碼已成功更新");
       form.reset();
     } catch (err) {
-      const data = err?.response?.data;
-      if (data?.current_password?.length) {
-        setMessage(data.current_password[0]);
-      } else if (data?.new_password?.length) {
-        setMessage(data.new_password[0]);
+      const apiError = err as any;
+      const details = apiError.details;
+
+      if (details?.current_password?.length) {
+        setMessage(details.current_password[0]);
+      } else if (details?.new_password?.length) {
+        setMessage(details.new_password[0]);
       } else {
         setMessage("發生錯誤，請稍後再試");
       }

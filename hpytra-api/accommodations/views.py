@@ -195,10 +195,10 @@ class HotelDetailAPIView(APIView):
         if slug != slug.lower():
             return HttpResponsePermanentRedirect(request.path.lower())
 
+        hotel_qs = Hotel.objects.filter(is_active=True).select_related("place")
         hotel = get_object_or_404(
-            Hotel,
+            hotel_qs,
             slug=slug,
-            is_active=True,
         )
 
         serializer = HotelDetailSerializer(hotel)
@@ -210,13 +210,17 @@ class NearbyHotelsAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, slug):
-        current_hotel = get_object_or_404(Hotel, slug=slug.lower())
+        current_hotel_qs = Hotel.objects.select_related("place")
+        current_hotel = get_object_or_404(
+            current_hotel_qs,
+            slug=slug.lower(),
+        )
 
         # 與此 hotel 相同 place 的所有 hotels
         base_qs = Hotel.objects.filter(
             place=current_hotel.place,
             is_active=True,
-        )
+        ).select_related("place")
 
         # 取前 3 個 hotels
         prev_hotels = list(
@@ -258,12 +262,14 @@ class TopHotelsAPIView(ListAPIView):
 
     # 取得所有標記為 show_on_homepage 的 hotels，隨機選 12 筆
     def get_queryset(self):
-        return Hotel.objects.filter(
-            show_on_homepage=True,
-            is_active=True,
-        ).order_by(
-            Random()
-        )[:12]
+        return (
+            Hotel.objects.filter(
+                show_on_homepage=True,
+                is_active=True,
+            )
+            .select_related("place")
+            .order_by(Random())[:12]
+        )
 
 
 @method_decorator(cache_page(settings.CACHE["NORMAL"]), name="dispatch")
@@ -275,10 +281,14 @@ class HotelsByLabelAPIView(ListAPIView):
     def get_queryset(self):
         label_slug = self.kwargs["label_slug"]
 
-        return Hotel.objects.filter(
-            labels__contains=[label_slug],
-            is_active=True,
-        ).order_by("order_index")
+        return (
+            Hotel.objects.filter(
+                labels__contains=[label_slug],
+                is_active=True,
+            )
+            .select_related("place")
+            .order_by("order_index")
+        )
 
 
 @method_decorator(cache_page(settings.CACHE["NORMAL"]), name="dispatch")
@@ -297,6 +307,7 @@ class HotelsByPlaceTreeAPIView(ListAPIView):
 
         hotels = (
             get_hotels_by_place_tree(place_slug)
+            .select_related("place")
             .only(
                 "name",
                 "slug",
@@ -361,22 +372,26 @@ class HotelsByPlaceTreeMapAPIView(ListAPIView):
     def get_queryset(self):
         place_slug = self.kwargs["place_slug"]
 
-        return get_hotels_by_place_tree(place_slug).only(
-            "name",
-            "slug",
-            "coordinates_lat",
-            "coordinates_lng",
-            "google_rating",
-            "place",
-            "labels",
-            "order_index",
-            "price_double_room",
-            "price_quad_room",
-            "agoda_slug",
-            "booking_slug",
-            "klook_slug",
-            "kkday_slug",
-            "photo_main",
+        return (
+            get_hotels_by_place_tree(place_slug)
+            .select_related("place")
+            .only(
+                "name",
+                "slug",
+                "coordinates_lat",
+                "coordinates_lng",
+                "google_rating",
+                "place",
+                "labels",
+                "order_index",
+                "price_double_room",
+                "price_quad_room",
+                "agoda_slug",
+                "booking_slug",
+                "klook_slug",
+                "kkday_slug",
+                "photo_main",
+            )
         )
 
 

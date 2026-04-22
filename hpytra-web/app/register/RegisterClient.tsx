@@ -19,7 +19,7 @@ export default function RegisterClient() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setMessage(null);
@@ -59,13 +59,15 @@ export default function RegisterClient() {
       }
       setTurnstileToken("");
 
-      const data = err?.response?.data;
-      if (data?.username?.length) {
-        setMessage(data.username[0]);
-      } else if (data?.email?.length) {
-        setMessage(data.email[0]);
-      } else if (data?.password?.length) {
-        setMessage(data.password[0]);
+      const apiError = err as any;
+      const details = apiError.details;
+
+      if (details?.username?.length) {
+        setMessage(details.username[0]);
+      } else if (details?.email?.length) {
+        setMessage(details.email[0]);
+      } else if (details?.password?.length) {
+        setMessage(details.password[0]);
       } else {
         setMessage("註冊失敗，請稍後再試");
       }

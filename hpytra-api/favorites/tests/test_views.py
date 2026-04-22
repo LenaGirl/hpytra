@@ -63,7 +63,6 @@ class TestFavoriteAPIView:
 
         assert response.status_code == 401
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 401
 
     def test_returns_first_page_of_paginated_favorites(self, api_client, test_user):
@@ -158,7 +157,6 @@ class TestFavoriteToggleAPIView:
 
         assert response.status_code == 401
         assert payload["success"] is False
-        assert payload["data"] is None
         assert payload["error"]["status"] == 401
 
 
